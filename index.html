@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PoolDose — Support</title>
+<meta name="description" content="Support for PoolDose, the pool and hot tub dosing calculator. Exact amounts for the chemicals you actually own. No subscription.">
+<style>
+  /* 配色はアプリ本体の theme/colors.ts と同じトークン。
+     画面と地続きに見えることが、審査でも利用者にとっても信用になる */
+  :root{
+    --bg:#EDF4F6; --card:#FFFFFF; --ink:#06272F; --ink-soft:#557079;
+    --accent:#0E7C97; --ok:#1B9E77; --low:#C9871F; --high:#C9503A; --line:#D5E5EA;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#06202A; --card:#0E2E3A; --ink:#E4F0F3; --ink-soft:#8AA5AE;
+      --accent:#35A8C6; --ok:#35C79A; --low:#E5AC4A; --high:#E0765C; --line:#1C3E4B;
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6;padding:24px 20px 64px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:680px;margin:0 auto}
+
+  header{margin:20px 0 32px}
+  h1{font-size:38px;line-height:1.05;letter-spacing:-1px;font-weight:800}
+  header p{margin-top:10px;font-size:17px;color:var(--ink-soft)}
+  .claim{display:inline-block;margin-top:16px;font-size:13px;font-weight:800;
+    letter-spacing:.4px;color:var(--accent);border:1.5px solid var(--accent);
+    border-radius:8px;padding:6px 11px}
+
+  h2{font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-soft);
+    margin:38px 0 12px;font-weight:700}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:20px;display:flex;gap:14px;align-items:stretch}
+  .card + .card{margin-top:10px}
+  /* 左端の色片はアプリの判定パッドと同じ意匠 */
+  .pad{width:5px;border-radius:2.5px;flex:none;background:var(--line)}
+  .pad.ok{background:var(--ok)} .pad.low{background:var(--low)}
+  .pad.high{background:var(--high)} .pad.accent{background:var(--accent)}
+  .body{flex:1}
+  .card h3{font-size:16px;margin-bottom:6px;letter-spacing:-.2px}
+  .card p,.card li{font-size:15px}
+  .card ul{padding-left:20px;margin-top:8px}
+  .card li{margin-top:4px}
+  .card p + p{margin-top:8px}
+  a{color:var(--accent);font-weight:600;text-decoration:none}
+  a:hover{text-decoration:underline}
+  .muted{color:var(--ink-soft);font-size:13.5px}
+  footer{margin-top:44px;text-align:center;color:var(--ink-soft);font-size:13px}
+</style>
+<meta property="og:title" content="PoolDose — Pool &amp; hot tub dosing, without the subscription">
+<meta property="og:description" content="Enter your test results, get the exact amount of the chemical you actually own. Works offline.">
+<meta property="og:url" content="https://nosunosukawa.github.io/pooldose-site/">
+<meta property="og:type" content="website">
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>PoolDose</h1>
+    <p>Enter your test results. Get the exact amount of the chemical you actually own —
+       for pools and hot tubs of any size.</p>
+    <span class="claim">No subscription. Ever.</span>
+  </header>
+
+  <h2 id="support">Support</h2>
+  <div class="card">
+    <div class="pad accent"></div>
+    <div class="body">
+      <h3>Contact</h3>
+      <p>Questions, bug reports, and corrections to the chemistry:
+         <a href="mailto:nosunosukawa@gmail.com">nosunosukawa@gmail.com</a></p>
+      <p class="muted">Solo developer — I read everything, and replies usually take a day or two.
+         If you think a dose looks wrong, tell me your pool volume, the reading, and the product
+         label percentage, and I will check the math against the published tables.</p>
+    </div>
+  </div>
+
+  <h2>Common questions</h2>
+
+  <div class="card">
+    <div class="pad ok"></div>
+    <div class="body">
+      <h3>What is free, and what does the one-time unlock add?</h3>
+      <p>Free covers the volume calculator, test logging with instant Low/OK/High verdicts,
+         the last 7 days of history, and liquid chlorine dosing for one chlorine pool.</p>
+      <p>The one-time PoolDose Pro purchase adds every other chemical (acids, Cal-Hypo,
+         dichlor, trichlor, baking soda, calcium chloride, CYA, salt, bromine), salt water
+         and bromine pools, unlimited history and trend charts, reminders, and multiple pools.
+         It is a single purchase, not a subscription, and it does not expire.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="pad accent"></div>
+    <div class="body">
+      <h3>I paid but the app still shows the lock</h3>
+      <p>Open <strong>Settings → View PoolDose Pro → Restore purchase</strong> while signed in
+         with the same Apple ID you bought it with. The unlock is tied to the Apple ID, not the
+         device, so it carries to a new phone.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="pad low"></div>
+    <div class="body">
+      <h3>Where do the amounts come from?</h3>
+      <p>Linear parameters (chlorine, alkalinity, calcium, CYA, salt, bromine) are pure
+         stoichiometry from your water volume and the product's active-ingredient percentage.
+         pH uses a carbonate-plus-cyanurate buffer model, pinned in tests against the published
+         dosing tables.</p>
+      <p>Every result carries a per-addition safety cap, a split-dose plan when the amount is
+         large, and a retest interval. Amounts round toward under-dosing rather than over-dosing.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="pad high"></div>
+    <div class="body">
+      <h3>Why doesn't it read my test strip with the camera?</h3>
+      <p>Because camera strip reading is unreliable in real conditions — lighting, shade and
+         camera differences move the colors, and that is the single biggest complaint against
+         the apps that do it. PoolDose shows the color swatches on screen instead: you hold
+         your strip next to them and tap the closest match, or type the number. People are
+         good at comparing two colors side by side; putting a camera in between breaks it.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="pad ok"></div>
+    <div class="body">
+      <h3>Does it work without a signal?</h3>
+      <p>Yes — everything runs on your device. There is no account, no sign-in, and no server.
+         The app never needs a connection except when the App Store handles your purchase.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="pad accent"></div>
+    <div class="body">
+      <h3>Which units does it use?</h3>
+      <p>Both. Gallons or liters for volume, feet or meters for pool dimensions, oz/lb or g/mL
+         for doses, °F or °C for water temperature. Switch the whole app in
+         <strong>Settings → Units</strong>.</p>
+    </div>
+  </div>
+
+  <h2>Safety</h2>
+  <div class="card">
+    <div class="pad high"></div>
+    <div class="body">
+      <h3>Read this before you add anything</h3>
+      <p>PoolDose gives general guidance based on standard pool chemistry. It is not a
+         substitute for the instructions on your chemical product labels.</p>
+      <ul>
+        <li>If the label and the app disagree, follow the label.</li>
+        <li>Never mix chemicals with each other — especially chlorine products with acid.</li>
+        <li>Add chemicals to water, never water to chemicals.</li>
+        <li>Store them away from children and pets.</li>
+        <li>When in doubt, add less, circulate, and retest before adding more.</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    © 2026 Nobutaka Kawasaki · <a href="privacy.html">Privacy policy</a>
+  </footer>
+
+</div>
+</body>
+</html>
