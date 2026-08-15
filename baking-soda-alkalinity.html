@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How Much Baking Soda to Raise Pool Alkalinity — Dosage Chart by Pool Size</title>
+<meta name="description" content="Exact amounts of baking soda to raise total alkalinity by 10, 20 or 30 ppm in 5,000–25,000 gallon pools — plus when you actually need soda ash instead, with the TA side effect quantified.">
+<style>
+  /* 配色はアプリ本体の theme/colors.ts と同じトークン（chlorine-dosage.html と同じ） */
+  :root{
+    --bg:#EDF4F6; --card:#FFFFFF; --ink:#06272F; --ink-soft:#557079;
+    --accent:#0E7C97; --ok:#1B9E77; --low:#C9871F; --high:#C9503A; --line:#D5E5EA;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#06202A; --card:#0E2E3A; --ink:#E4F0F3; --ink-soft:#8AA5AE;
+      --accent:#35A8C6; --ok:#35C79A; --low:#E5AC4A; --high:#E0765C; --line:#1C3E4B;
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.7;padding:24px 20px 64px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:680px;margin:0 auto}
+  .back{font-size:13.5px;font-weight:600}
+  header{margin:18px 0 32px}
+  h1{font-size:30px;line-height:1.15;letter-spacing:-.6px;font-weight:800}
+  header p{margin-top:12px;font-size:17px;color:var(--ink-soft)}
+  h2{font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-soft);
+    margin:38px 0 12px;font-weight:700}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:20px;display:flex;gap:14px;align-items:stretch}
+  .card + .card{margin-top:10px}
+  .pad{width:5px;border-radius:2.5px;flex:none;background:var(--line)}
+  .pad.ok{background:var(--ok)} .pad.low{background:var(--low)}
+  .pad.high{background:var(--high)} .pad.accent{background:var(--accent)}
+  .body{flex:1;min-width:0}
+  .card h3{font-size:16px;margin-bottom:6px;letter-spacing:-.2px}
+  .card p,.card li{font-size:15px}
+  .card ul{padding-left:20px;margin-top:8px}
+  .card li{margin-top:4px}
+  .card p + p{margin-top:8px}
+  a{color:var(--accent);font-weight:600;text-decoration:none}
+  a:hover{text-decoration:underline}
+  .muted{color:var(--ink-soft);font-size:13.5px}
+  .scroll{overflow-x:auto;margin-top:10px;-webkit-overflow-scrolling:touch;
+    background:var(--card);border:1px solid var(--line);border-radius:12px}
+  table{border-collapse:collapse;font-size:14.5px;min-width:100%}
+  th,td{padding:8px 10px;text-align:right;white-space:nowrap;
+    border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  thead th{font-size:12px;letter-spacing:.6px;text-transform:uppercase;
+    color:var(--ink-soft);font-weight:700}
+  tbody tr:last-child td,tbody tr:last-child th{border-bottom:none}
+  tbody th{text-align:left;white-space:nowrap}
+  .split{font-size:11.5px;color:var(--low);font-weight:700}
+  .hint{margin-top:8px;font-size:12.5px;color:var(--ink-soft)}
+  @media (min-width:700px){ .hint{display:none} }
+  @media (max-width:560px){
+    th,td{padding:7px 7px;font-size:13.5px}
+    thead th{font-size:11px;letter-spacing:.3px}
+  }
+  footer{margin-top:44px;text-align:center;color:var(--ink-soft);font-size:13px}
+</style>
+<meta property="og:title" content="How Much Baking Soda to Raise Pool Alkalinity — Dosage Chart">
+<meta property="og:description" content="Exact baking-soda amounts to raise TA by 10–30 ppm, by pool size — and when you need soda ash instead.">
+<meta property="og:url" content="https://nosunosukawa.github.io/pooldose-site/baking-soda-alkalinity.html">
+<meta property="og:type" content="article">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="index.html">&larr; PoolDose</a>
+
+  <header>
+    <h1>How much baking soda<br>to raise pool alkalinity</h1>
+    <p>Total alkalinity below about 80 ppm makes pH jumpy — every splash of rain or
+       chlorine swings it. The fix is plain baking soda, and the right amount is a
+       function of your pool volume and how far you're lifting it. Here is the chart.</p>
+  </header>
+
+  <h2>Dosage chart · baking soda for TA</h2>
+
+  <!-- data:start（node make-alkalinity.mjs が生成。手で直さない） -->
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr><th>Raise TA by</th><th>5,000 gal</th><th>10,000 gal</th><th>15,000 gal</th>
+            <th>20,000 gal</th><th>25,000 gal</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">+10 ppm</th><td>11.2 oz</td><td>1 lb 6.4 oz</td><td>2 lb 1.6 oz</td><td>2 lb 12.8 oz</td><td>3 lb 8 oz</td></tr>
+        <tr><th scope="row">+20 ppm</th><td>1 lb 6.4 oz <span class="split">&times;2</span></td><td>2 lb 12.8 oz <span class="split">&times;2</span></td><td>4 lb 3.3 oz <span class="split">&times;2</span></td><td>5 lb 9.7 oz <span class="split">&times;2</span></td><td>7 lb 0.1 oz <span class="split">&times;2</span></td></tr>
+        <tr><th scope="row">+30 ppm</th><td>2 lb 1.6 oz <span class="split">&times;3</span></td><td>4 lb 3.3 oz <span class="split">&times;3</span></td><td>6 lb 4.9 oz <span class="split">&times;3</span></td><td>8 lb 6.5 oz <span class="split">&times;3</span></td><td>10 lb 8.1 oz <span class="split">&times;3</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="hint">Swipe the table sideways for larger pools &rarr;</p>
+  <p class="muted">Amounts are baking soda (sodium bicarbonate) by <em>weight</em>.
+     <span class="split">&times;2</span> / <span class="split">&times;3</span> = too much
+     for a single addition — split the total into that many doses, brushing away any
+     piles between additions. Retest after about 6 hours; alkalinity readings
+     drift while the water mixes.</p>
+
+  <p style="margin-top:16px">Example: to lift a 10,000-gallon pool from 60 to 70 ppm,
+     add <strong>1 lb 6.4 oz</strong> of plain baking soda. The 1-lb boxes from the
+     grocery store are the same sodium bicarbonate as "alkalinity increaser" —
+     the pool-store label mostly buys a bigger bucket.</p>
+
+  <h2>Baking soda vs soda ash — which one do you need?</h2>
+  <div class="card">
+    <div class="pad accent"></div>
+    <div class="body">
+      <p>They look alike and both nudge both numbers, but they are different tools:
+         <strong>baking soda raises alkalinity</strong> with only a small pH effect;
+         <strong>soda ash raises pH</strong> — and drags TA up with it as a side effect.</p>
+      <p>The engine puts a number on that side effect: raising pH 7.0&nbsp;&rarr;&nbsp;7.4
+         in a 10,000-gallon pool takes about <strong>1 lb</strong> of
+         soda ash and adds roughly <strong>11.3 ppm of TA</strong>
+         at the same time. So the order matters: if <em>both</em> pH and TA are low,
+         fix pH with soda ash first, retest, and only then top up TA with baking soda —
+         otherwise you overshoot alkalinity and end up lowering it again with acid.</p>
+      <p class="muted">Lowering TA is the opposite, asymmetric job: acid plus aeration,
+         done in rounds. There is no "alkalinity decreaser" powder that skips the rounds.</p>
+    </div>
+  </div>
+  <!-- data:end -->
+
+  <h2>Before you add anything</h2>
+  <div class="card">
+    <div class="pad low"></div>
+    <div class="body">
+      <ul>
+        <li><strong>Test first, dose second.</strong> The chart assumes your test number is
+            real — retest a surprising reading before correcting it.</li>
+        <li><strong>Broadcast it over the deep end</strong> with the pump running,
+            rather than dumping it in one spot.</li>
+        <li><strong>Don't chase pH the same day.</strong> Baking soda barely moves pH, but
+            the water needs hours to mix; read TA again before touching anything else.</li>
+        <li><strong>Hot tubs are not small pools</strong> — the volumes here start at
+            5,000 gallons. For a 300–500 gallon spa the amounts are tablespoon-scale and
+            overshoot is easy; compute them, don't eyeball them.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Your pool, your products</h2>
+  <div class="card">
+    <div class="pad ok"></div>
+    <div class="body">
+      <p><a href="index.html">PoolDose</a> (iOS) runs this same engine on your actual
+         pool volume: enter the test reading and the target, and it returns the dose in
+         your units, splits additions that are too large, and tells you when to retest.
+         One-time purchase, no subscription. There's also a free
+         <a href="chlorine-calculator.html">browser calculator</a> for chlorine.</p>
+    </div>
+  </div>
+
+  <h2>Where these numbers come from</h2>
+  <div class="card">
+    <div class="pad"></div>
+    <div class="body">
+      <p class="muted">The chart is generated by the same dosing engine that runs inside
+         PoolDose (<code>make-alkalinity.mjs</code> executes it), so this page and the
+         app cannot drift apart. Coefficients are ingredient-based (sodium bicarbonate
+         at 59.56 ppm-yield) and checked against published dosing tables. Estimates for
+         typical residential water — your test kit has the final word.</p>
+    </div>
+  </div>
+
+  <footer>
+    © 2026 Nobutaka Kawasaki · <a href="index.html">PoolDose</a> ·
+    <a href="privacy.html">Privacy policy</a>
+  </footer>
+
+</div>
+</body>
+</html>
