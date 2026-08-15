@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pool Chlorine Calculator — Exact Dose for Your Pool Size</title>
+<meta name="description" content="Free chlorine calculator: enter your pool volume and current/target FC, get the exact amount of liquid chlorine, cal-hypo, dichlor or trichlor — with split-dose limits and what each product silently adds.">
+<style>
+  /* 配色はアプリ本体の theme/colors.ts と同じトークン。
+     画面と地続きに見えることが、審査でも利用者にとっても信用になる */
+  :root{
+    --bg:#EDF4F6; --card:#FFFFFF; --ink:#06272F; --ink-soft:#557079;
+    --accent:#0E7C97; --ok:#1B9E77; --low:#C9871F; --high:#C9503A; --line:#D5E5EA;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#06202A; --card:#0E2E3A; --ink:#E4F0F3; --ink-soft:#8AA5AE;
+      --accent:#35A8C6; --ok:#35C79A; --low:#E5AC4A; --high:#E0765C; --line:#1C3E4B;
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6;padding:24px 20px 64px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:680px;margin:0 auto}
+
+  .back{font-size:13.5px;font-weight:600}
+  header{margin:18px 0 28px}
+  h1{font-size:34px;line-height:1.1;letter-spacing:-.8px;font-weight:800}
+  header p{margin-top:12px;font-size:17px;color:var(--ink-soft)}
+
+  h2{font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-soft);
+    margin:38px 0 12px;font-weight:700}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .card + .card{margin-top:10px}
+  .card h3{font-size:16px;margin-bottom:6px;letter-spacing:-.2px}
+  .card p,.card li{font-size:15px}
+  .card ul{padding-left:20px;margin-top:8px}
+  .card li{margin-top:4px}
+  a{color:var(--accent);font-weight:600;text-decoration:none}
+  a:hover{text-decoration:underline}
+  .muted{color:var(--ink-soft);font-size:13.5px}
+
+  /* 電卓フォーム */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field.full{grid-column:1 / -1}
+  label{font-size:12px;letter-spacing:.8px;text-transform:uppercase;
+    color:var(--ink-soft);font-weight:700}
+  input,select{font:inherit;color:var(--ink);background:var(--bg);
+    border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+  input:focus,select:focus{outline:2px solid var(--accent);outline-offset:0}
+  .vol{display:flex;gap:8px}
+  .vol input{flex:1}
+  .vol select{width:86px;flex:none}
+
+  /* 結果 */
+  .result{margin-top:16px;border-top:1px solid var(--line);padding-top:16px}
+  .amount{font-size:38px;font-weight:800;letter-spacing:-.8px;line-height:1.15}
+  .amount small{font-size:17px;font-weight:600;color:var(--ink-soft);letter-spacing:0}
+  .metric{margin-top:2px;color:var(--ink-soft);font-size:14.5px}
+  .note{margin-top:12px;font-size:14.5px}
+  .warn{margin-top:12px;padding:10px 12px;border-radius:10px;font-size:14px;
+    background:color-mix(in srgb,var(--low) 12%,transparent);border:1px solid var(--low)}
+  .steps{margin-top:10px;padding-left:20px;font-size:14.5px}
+  .steps li{margin-top:4px}
+  .err{color:var(--high);font-weight:600;font-size:15px}
+  footer{margin-top:44px;text-align:center;color:var(--ink-soft);font-size:13px}
+</style>
+<meta property="og:title" content="Pool chlorine calculator — exact dose for your pool">
+<meta property="og:description" content="Enter pool volume and current/target free chlorine. Get the exact dose, split-dose limits, and the side effects other calculators skip.">
+<meta property="og:url" content="https://nosunosukawa.github.io/pooldose-site/chlorine-calculator.html">
+<meta property="og:type" content="website">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication",
+ "name":"Pool Chlorine Calculator",
+ "applicationCategory":"UtilitiesApplication",
+ "operatingSystem":"Any",
+ "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+ "url":"https://nosunosukawa.github.io/pooldose-site/chlorine-calculator.html"}
+</script>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="back"><a href="./">&larr; PoolDose</a></p>
+
+  <header>
+    <h1>Pool chlorine calculator</h1>
+    <p>Enter your pool volume and where free chlorine is now. The dose comes from the
+       same engine as the PoolDose app — including the <strong>split-dose limits</strong>
+       and <strong>side effects</strong> most calculators skip.</p>
+  </header>
+
+  <div class="card">
+    <div class="grid">
+      <div class="field full">
+        <label for="vol">Pool volume</label>
+        <div class="vol">
+          <input id="vol" type="number" inputmode="decimal" min="100" step="100" value="10000">
+          <select id="volUnit">
+            <option value="gal" selected>gal</option>
+            <option value="L">L</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="fcNow">Current FC (ppm)</label>
+        <input id="fcNow" type="number" inputmode="decimal" min="0" max="30" step="0.5" value="1">
+      </div>
+      <div class="field">
+        <label for="fcTarget">Target FC (ppm)</label>
+        <input id="fcTarget" type="number" inputmode="decimal" min="0" max="30" step="0.5" value="3">
+      </div>
+      <div class="field">
+        <label for="product">Product</label>
+        <select id="product">
+          <option value="liquid_chlorine" selected>Liquid chlorine / bleach</option>
+          <option value="cal_hypo">Cal-hypo (granules)</option>
+          <option value="dichlor">Dichlor (granules)</option>
+          <option value="trichlor">Trichlor (tablets)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="strength">Strength</label>
+        <select id="strength"></select>
+      </div>
+    </div>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <h2>What this product adds besides chlorine</h2>
+  <div class="card">
+    <p id="sideNote"></p>
+    <p class="muted" style="margin-top:8px">The long version — with the numbers for every
+       product — is in <a href="chlorine-dosage.html">the chlorine dosage chart</a>.</p>
+  </div>
+
+  <h2>How the math works</h2>
+  <div class="card">
+    <p>Raising 10,000&nbsp;gallons by 1&nbsp;ppm takes about 37.9&nbsp;g of available
+       chlorine. The calculator scales that by your volume and the ppm gap, then divides
+       by the strength of the product you picked. Doses are rounded <em>down</em> —
+       adding a little less and retesting beats overshooting.</p>
+    <p style="margin-top:8px">Amounts above the safe single-addition limit are split into
+       stages, with a retest between each. That limit is per 10,000&nbsp;gallons and
+       depends on the product.</p>
+  </div>
+
+  <h2>PoolDose</h2>
+  <div class="card">
+    <p>This page does one parameter. The <a href="./">PoolDose app</a> does the same
+       calculation for pH, alkalinity, calcium, CYA, salt and bromine — offline, with
+       your own products and their real strengths saved. One-time purchase, no
+       subscription, no account.</p>
+  </div>
+
+  <footer>
+    <p>Doses are calculated estimates, not professional advice. Always follow the
+       product label. &copy; 2026 PoolDose</p>
+  </footer>
+</div>
+
+<script src="poolchem.js"></script>
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var STRENGTHS = {
+    liquid_chlorine: { choices:[5,6,8.25,10,12.5], def:10, label:function(p){
+      return p + "% (" + (p===8.25||p===6||p===5 ? "household bleach" : "pool store") + ")"; } },
+    cal_hypo: { choices:[48,53,65,73], def:65, label:function(p){ return p + "% available chlorine"; } },
+    dichlor: { choices:[], def:null },
+    trichlor: { choices:[], def:null }
+  };
+  var SIDE_TEXT = {
+    liquid_chlorine: "Liquid chlorine leaves salt behind as it works — about 0.8 ppm per 1 ppm of FC. Harmless in most pools, meaningful if you run a saltwater generator.",
+    cal_hypo: "Cal-hypo adds calcium — about 0.7 ppm CH per 1 ppm of FC. Fine for soft-water areas; watch your CH if your fill water is already hard.",
+    dichlor: "Dichlor adds stabilizer: about 0.9 ppm CYA per 1 ppm of FC. CYA doesn't leave the water — daily dichlor use quietly overshoots it within weeks.",
+    trichlor: "Trichlor adds about 0.6 ppm CYA per 1 ppm of FC and steadily pulls alkalinity down (−0.89 ppm TA per ppm FC). That's why trichlor pools drift acidic."
+  };
+  var METHOD_TEXT = {
+    "method.pour_perimeter": "Pour slowly around the pool perimeter with the pump running.",
+    "method.predissolve": "Pre-dissolve in a bucket of pool water, then pour around the perimeter.",
+    "method.broadcast": "Broadcast evenly over the water surface with the pump running.",
+    "method.feeder_only": "Use a floater or inline feeder only. Never throw tablets into the pool."
+  };
+
+  function fillStrength(){
+    var p = $("product").value, cfg = STRENGTHS[p], sel = $("strength");
+    sel.innerHTML = "";
+    if (!cfg.choices.length){
+      var o = document.createElement("option");
+      o.textContent = p === "dichlor" ? "55.5% available chlorine" : "91.5% available chlorine";
+      o.value = ""; sel.appendChild(o); sel.disabled = true;
+    } else {
+      sel.disabled = false;
+      cfg.choices.forEach(function(c){
+        var o = document.createElement("option");
+        o.value = c; o.textContent = cfg.label(c);
+        if (c === cfg.def) o.selected = true;
+        sel.appendChild(o);
+      });
+    }
+  }
+
+  // 液剤の secondary は換算(括弧)、乾燥剤の lb+oz は加算(スペース区切り)。
+  // 同じ括弧で出すと「1 lb (0.1 oz)」が換算に見えて誤読させる
+  function fmtUS(disp, form){
+    var s = disp.primary.value + " " + disp.primary.unit;
+    if (disp.secondary){
+      s += form === "dry"
+        ? " " + disp.secondary.value + " " + disp.secondary.unit
+        : " (" + disp.secondary.value + " " + disp.secondary.unit + ")";
+    }
+    return s;
+  }
+
+  function compute(){
+    var out = $("result");
+    var vol = parseFloat($("vol").value);
+    var unit = $("volUnit").value;
+    var now = parseFloat($("fcNow").value);
+    var target = parseFloat($("fcTarget").value);
+    var product = $("product").value;
+    var strength = $("strength").value ? parseFloat($("strength").value) : undefined;
+    $("sideNote").textContent = SIDE_TEXT[product];
+
+    if (!(vol > 0) || isNaN(now) || isNaN(target)){
+      out.innerHTML = '<p class="muted">Enter your pool volume and FC readings above.</p>';
+      return;
+    }
+    var gallons = unit === "L" ? PoolChem.litersToGallons(vol) : vol;
+    if (target <= now){
+      out.innerHTML = '<p class="err">Target FC must be higher than current FC.</p>' +
+        '<p class="note muted">Already at or above target? Chlorine falls on its own with sun and use — retest tomorrow.</p>';
+      return;
+    }
+    var r;
+    try {
+      r = PoolChem.computeDose("fc", now, target, { gallons: gallons }, product,
+                               strength ? { concentrationPercent: strength } : undefined);
+    } catch(e){
+      out.innerHTML = '<p class="err">Check the inputs — that combination can’t be calculated.</p>';
+      return;
+    }
+    var html = "";
+    if (r.form === "liquid"){
+      var us = PoolChem.formatLiquidAmount(r.totalOz, "us");
+      var ml = PoolChem.flOzToMl(r.totalOz);
+      html += '<div class="amount">' + fmtUS(us, "liquid") + "</div>";
+      html += '<div class="metric">' + (ml >= 1000 ? (ml/1000).toFixed(2) + " L" : Math.round(ml) + " mL") + "</div>";
+    } else {
+      var usd = PoolChem.formatDryAmount(r.totalOz, "us");
+      var g = PoolChem.ozToGrams(r.totalOz);
+      html += '<div class="amount">' + fmtUS(usd, "dry") + "</div>";
+      html += '<div class="metric">' + (g >= 1000 ? (g/1000).toFixed(2) + " kg" : Math.round(g) + " g") + "</div>";
+    }
+    if (r.splits.length > 1){
+      html += '<div class="warn">Too much for one addition. Add it in ' + r.splits.length + " stages:</div>";
+      html += '<ol class="steps">';
+      r.splits.forEach(function(s, i){
+        var d = r.form === "liquid" ? PoolChem.formatLiquidAmount(s.amountOz, "us") : PoolChem.formatDryAmount(s.amountOz, "us");
+        html += "<li>Add " + fmtUS(d, r.form) + ", wait " + s.waitMinutes + " min" +
+                (i === r.splits.length - 1 ? " and retest." : ", retest, then continue.") + "</li>";
+      });
+      html += "</ol>";
+    } else {
+      html += '<p class="note">Retest after <strong>' + r.retestAfterMinutes + " minutes</strong> of circulation.</p>";
+    }
+    html += '<p class="note">' + METHOD_TEXT[r.methodKey] + "</p>";
+    var fx = [];
+    if (r.sideEffects.cya) fx.push("CYA +" + r.sideEffects.cya + " ppm");
+    if (r.sideEffects.ch) fx.push("CH +" + r.sideEffects.ch + " ppm");
+    if (r.sideEffects.ta) fx.push("TA " + r.sideEffects.ta + " ppm");
+    if (r.sideEffects.salt) fx.push("salt +" + r.sideEffects.salt + " ppm");
+    if (fx.length) html += '<p class="note muted">This dose also moves: ' + fx.join(" · ") + "</p>";
+    out.innerHTML = html;
+  }
+
+  ["vol","volUnit","fcNow","fcTarget","strength"].forEach(function(id){
+    $(id).addEventListener("input", compute);
+  });
+  $("product").addEventListener("input", function(){ fillStrength(); compute(); });
+  fillStrength();
+  compute();
+})();
+</script>
+</body>
+</html>
