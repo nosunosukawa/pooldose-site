@@ -102,6 +102,7 @@
   <div class="card">
     <div class="pad accent"></div>
     <div class="body">
+      <!-- data:start（node make-dosage.mjs が生成。手で直さない） -->
       <div class="scroll">
       <table>
         <thead>
@@ -109,14 +110,11 @@
               <th>20,000 gal</th><th>25,000 gal</th></tr>
         </thead>
         <tbody>
-          <tr><td>Liquid chlorine 10%</td><td>6.4 fl oz</td><td>12.8 fl oz</td>
-              <td>19.2 fl oz</td><td>25.6 fl oz</td><td>32.0 fl oz</td></tr>
-          <tr><td>Liquid chlorine 12.5%</td><td>5.1 fl oz</td><td>10.2 fl oz</td>
-              <td>15.4 fl oz</td><td>20.5 fl oz</td><td>25.6 fl oz</td></tr>
-          <tr><td>Cal-hypo granules 73%</td><td>1.0 oz</td><td>2.1 oz</td>
-              <td>3.1 oz</td><td>4.1 oz</td><td>5.1 oz</td></tr>
-          <tr><td>Dichlor granules 56%</td><td>1.2 oz</td><td>2.4 oz</td>
-              <td>3.6 oz</td><td>4.8 oz</td><td>6.0 oz</td></tr>
+          <tr><td>Liquid chlorine 10%</td><td>6.4 fl oz</td><td>12.8 fl oz</td><td>19.2 fl oz</td><td>25.6 fl oz</td><td>32.0 fl oz</td></tr>
+          <tr><td>Liquid chlorine 12.5%</td><td>5.1 fl oz</td><td>10.2 fl oz</td><td>15.4 fl oz</td><td>20.5 fl oz</td><td>25.6 fl oz</td></tr>
+          <tr><td>Cal-hypo granules 73%</td><td>0.9 oz</td><td>1.8 oz</td><td>2.7 oz</td><td>3.7 oz</td><td>4.6 oz</td></tr>
+          <tr><td>Cal-hypo granules 65%</td><td>1.0 oz</td><td>2.1 oz</td><td>3.1 oz</td><td>4.1 oz</td><td>5.1 oz</td></tr>
+          <tr><td>Dichlor granules 55.5%</td><td>1.2 oz</td><td>2.4 oz</td><td>3.6 oz</td><td>4.8 oz</td><td>6.0 oz</td></tr>
         </tbody>
       </table>
       </div>
@@ -124,7 +122,9 @@
       <p class="muted" style="margin-top:12px">Dry products are ounces by <em>weight</em>;
          liquids are fluid ounces. Percentages are the strength printed on the bottle or
          bucket — check yours, because 10% and 12.5% liquid chlorine are both sold as
-         "pool shock" and the dose differs by a quarter.</p>
+         "pool shock" and the dose differs by a quarter. Cal-hypo is sold at several
+         strengths and the difference is real: 2.1&nbsp;oz of 65% does the same
+         job as 1.8&nbsp;oz of 73%.</p>
     </div>
   </div>
 
@@ -136,7 +136,7 @@
       <p>A 15,000 gallon pool tests at 1&nbsp;ppm free chlorine. You want 4&nbsp;ppm, so you
          need to raise it by 3&nbsp;ppm.</p>
       <p>From the chart, 12.5% liquid chlorine is 15.4&nbsp;fl oz per ppm.
-         15.4 × 3 = <strong>about 46 fl oz</strong>, or a bit under six cups.</p>
+         15.4 × 3 = <strong>about 46 fl oz</strong>, or 5.8 cups.</p>
       <p>Pour it slowly around the deep end with the pump running, then
          <strong>wait 30 minutes and retest</strong> before deciding you need more.
          Chlorine needs a full turnover to read accurately, and the most common way people
@@ -158,14 +158,16 @@
             added roughly 80 ppm of CYA — enough to lock up your chlorine. CYA does not
             evaporate or burn off; the only way down is draining and refilling.</li>
         <li><strong>Cal-hypo</strong> adds about <strong>0.7 ppm calcium hardness</strong>
-            per 1 ppm of chlorine. In hard-water areas this is what eventually scales your
-            heater and clouds the water.</li>
+            per 1 ppm of chlorine at 65% strength — 0.6 ppm if you buy the 73% product,
+            because it takes less of it. In hard-water areas this is what eventually scales
+            your heater and clouds the water.</li>
         <li><strong>Liquid chlorine</strong> adds about <strong>0.8 ppm salt</strong> per
             1 ppm of chlorine and nothing else. That is why it is the workhorse for
             routine dosing — but it loses strength on the shelf, so an old jug doses
             weaker than the label says.</li>
         <li><strong>Trichlor tablets</strong> add cyanuric acid too, and they are acidic —
-            they pull pH and total alkalinity down as they dissolve.</li>
+            they pull pH down and take <strong>0.9 ppm of alkalinity</strong>
+            with every ppm of chlorine as they dissolve.</li>
       </ul>
       <p>The practical rule: use stabilized chlorine (dichlor, trichlor) to
          <em>establish</em> CYA early in the season, then switch to liquid chlorine or
@@ -185,6 +187,7 @@
          little and often rather than in weekly slugs.</p>
     </div>
   </div>
+  <!-- data:end -->
 
   <h2>Before you add anything</h2>
   <div class="card">

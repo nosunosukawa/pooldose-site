@@ -174,12 +174,43 @@
     dichlor: { choices:[], def:null },
     trichlor: { choices:[], def:null }
   };
-  var SIDE_TEXT = {
-    liquid_chlorine: "Liquid chlorine leaves salt behind as it works — about 0.8 ppm per 1 ppm of FC. Harmless in most pools, meaningful if you run a saltwater generator.",
-    cal_hypo: "Cal-hypo adds calcium — about 0.7 ppm CH per 1 ppm of FC. Fine for soft-water areas; watch your CH if your fill water is already hard.",
-    dichlor: "Dichlor adds stabilizer: about 0.9 ppm CYA per 1 ppm of FC. CYA doesn't leave the water — daily dichlor use quietly overshoots it within weeks.",
-    trichlor: "Trichlor adds about 0.6 ppm CYA per 1 ppm of FC and steadily pulls alkalinity down (−0.89 ppm TA per ppm FC). That's why trichlor pools drift acidic."
-  };
+  /*
+    副作用の比率は**エンジンに訊く**。ここに数字を書き写さない——
+    Cal-Hypo の CH は製品の濃度で変わる(48%品は65%品の約1.4倍)ので、
+    固定文言にすると強度を選ばせている意味が無くなるうえ、静かにずれる。
+  */
+  function sideRatio(product, strength, param){
+    try {
+      var r = PoolChem.computeDose("fc", 0, 1, { gallons: 10000 }, product,
+                                   strength ? { concentrationPercent: strength } : undefined);
+      return r.sideEffects[param];
+    } catch(e){ return null; }
+  }
+  function sideText(product, strength){
+    switch(product){
+      case "liquid_chlorine":
+        return "Liquid chlorine leaves salt behind as it works — about " +
+               sideRatio(product, strength, "salt") + " ppm per 1 ppm of FC. Harmless in most " +
+               "pools, meaningful if you run a saltwater generator.";
+      case "cal_hypo":
+        return "Cal-hypo adds calcium — about " + sideRatio(product, strength, "ch") +
+               " ppm CH per 1 ppm of FC at " + strength + "% strength. Weaker product means " +
+               "more of it in the bucket, so the calcium climbs faster: " +
+               sideRatio(product, 48, "ch") + " ppm per ppm at 48% against " +
+               sideRatio(product, 73, "ch") + " at 73%. Watch your CH if your fill water is " +
+               "already hard.";
+      case "dichlor":
+        return "Dichlor adds stabilizer: about " + sideRatio(product, null, "cya") +
+               " ppm CYA per 1 ppm of FC. CYA doesn't leave the water — daily dichlor use " +
+               "quietly overshoots it within weeks.";
+      case "trichlor":
+        return "Trichlor adds about " + sideRatio(product, null, "cya") +
+               " ppm CYA per 1 ppm of FC and steadily pulls alkalinity down (" +
+               sideRatio(product, null, "ta") + " ppm TA per ppm FC). That's why trichlor " +
+               "pools drift acidic.";
+    }
+    return "";
+  }
   var METHOD_TEXT = {
     "method.pour_perimeter": "Pour slowly around the pool perimeter with the pump running.",
     "method.predissolve": "Pre-dissolve in a bucket of pool water, then pour around the perimeter.",
@@ -225,7 +256,7 @@
     var target = parseFloat($("fcTarget").value);
     var product = $("product").value;
     var strength = $("strength").value ? parseFloat($("strength").value) : undefined;
-    $("sideNote").textContent = SIDE_TEXT[product];
+    $("sideNote").textContent = sideText(product, strength);
 
     if (!(vol > 0) || isNaN(now) || isNaN(target)){
       out.innerHTML = '<p class="muted">Enter your pool volume and FC readings above.</p>';
