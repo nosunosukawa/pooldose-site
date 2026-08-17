@@ -4,52 +4,138 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PoolDose — Chemical Dosing Calculator App for Pools &amp; Hot Tubs</title>
-<meta name="description" content="Support for PoolDose, the pool and hot tub dosing calculator. Exact amounts for the chemicals you actually own. No subscription.">
+<meta name="description" content="Support for PoolDose, the pool and hot tub dosing calculator. Enter your test strip reading, get the exact ounces for the jug in your shed. Every dose calculation is free. No subscription.">
 <style>
   /* 配色はアプリ本体の theme/colors.ts と同じトークン。
-     画面と地続きに見えることが、審査でも利用者にとっても信用になる */
+     画面と地続きに見えることが、審査でも利用者にとっても信用になる。
+     ただし本文リンクは --accent だと 4.28:1 しか出ないので --link を別に置く。 */
   :root{
-    --bg:#EDF4F6; --card:#FFFFFF; --ink:#06272F; --ink-soft:#557079;
-    --accent:#0E7C97; --ok:#1B9E77; --low:#C9871F; --high:#C9503A; --line:#D5E5EA;
+    --bg:#E7EFF2; --panel:#FFFFFF; --ink:#06272F; --ink-soft:#4E6B74;
+    --accent:#0E7C97; --link:#0A6A82;
+    --ok:#1B7A5C; --low:#8A5A0E; --high:#A83B27;
+    --line:#C6D9DF; --rule:#06272F;
+    --label-bg:#A83B27; --label-ink:#FFFFFF;
+    --chip-line:#06272F26;
+    --focus:#0E7C97;
   }
   @media (prefers-color-scheme: dark){
     :root{
-      --bg:#06202A; --card:#0E2E3A; --ink:#E4F0F3; --ink-soft:#8AA5AE;
-      --accent:#35A8C6; --ok:#35C79A; --low:#E5AC4A; --high:#E0765C; --line:#1C3E4B;
+      --bg:#06202A; --panel:#0E2E3A; --ink:#E4F0F3; --ink-soft:#9BB4BC;
+      --accent:#35A8C6; --link:#5CC4DE;
+      --ok:#35C79A; --low:#E5AC4A; --high:#F09077;
+      --line:#224856; --rule:#5D8794;
+      --label-bg:#4A1A12; --label-ink:#FFD9CF;
+      --chip-line:#FFFFFF33;
+      --focus:#5CC4DE;
     }
   }
   *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
   body{background:var(--bg);color:var(--ink);
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    line-height:1.6;padding:24px 20px 64px;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:680px;margin:0 auto}
+    line-height:1.55;-webkit-font-smoothing:antialiased;
+    padding:0 16px 56px;overflow-x:hidden}
+  .wrap{max-width:760px;margin:0 auto}
+  a{color:var(--link);font-weight:600}
+  a:hover{text-decoration-thickness:2px}
+  :focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:2px}
+  img{max-width:100%;height:auto;display:block}
 
-  header{margin:20px 0 32px}
-  h1{font-size:38px;line-height:1.05;letter-spacing:-1px;font-weight:800}
-  header p{margin-top:10px;font-size:17px;color:var(--ink-soft)}
-  .claim{display:inline-block;margin-top:16px;font-size:13px;font-weight:800;
-    letter-spacing:.4px;color:var(--accent);border:1.5px solid var(--accent);
-    border-radius:8px;padding:6px 11px}
+  /* 数字は等幅。裏庭で濡れた手で読む数字が、桁でずれない */
+  .num{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-variant-numeric:tabular-nums;letter-spacing:-.02em}
 
-  h2{font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-soft);
-    margin:38px 0 12px;font-weight:700}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
-    padding:20px;display:flex;gap:14px;align-items:stretch}
-  .card + .card{margin-top:10px}
-  /* 左端の色片はアプリの判定パッドと同じ意匠 */
-  .pad{width:5px;border-radius:2.5px;flex:none;background:var(--line)}
-  .pad.ok{background:var(--ok)} .pad.low{background:var(--low)}
-  .pad.high{background:var(--high)} .pad.accent{background:var(--accent)}
-  .body{flex:1}
-  .card h3{font-size:16px;margin-bottom:6px;letter-spacing:-.2px}
-  .card p,.card li{font-size:15px}
-  .card ul{padding-left:20px;margin-top:8px}
-  .card li{margin-top:4px}
-  .card p + p{margin-top:8px}
-  a{color:var(--accent);font-weight:600;text-decoration:none}
-  a:hover{text-decoration:underline}
-  .muted{color:var(--ink-soft);font-size:13.5px}
-  footer{margin-top:44px;text-align:center;color:var(--ink-soft);font-size:13px}
+  /* --- 最上部: サポート窓口とプライバシーは、スクロールせずに見える位置 --- */
+  .utility{border-bottom:2px solid var(--rule);padding:10px 0;
+    display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline;font-size:14px}
+  .utility strong{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--ink-soft);font-weight:800}
+
+  header{padding:28px 0 4px}
+  h1{font-size:15px;letter-spacing:3px;text-transform:uppercase;font-weight:800}
+  .tagline{margin-top:14px;font-size:clamp(27px,7vw,40px);line-height:1.1;
+    letter-spacing:-.9px;font-weight:800}
+  .sub{margin-top:14px;font-size:17px;color:var(--ink-soft);max-width:46ch}
+  .promise{display:inline-block;margin-top:20px;font-size:13px;font-weight:800;
+    letter-spacing:.6px;text-transform:uppercase;
+    color:var(--ink);border:2px solid var(--rule);padding:7px 12px}
+  .promise span{color:var(--ink-soft);font-weight:700;text-transform:none;letter-spacing:0}
+
+  h2{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-soft);
+    margin:52px 0 14px;font-weight:800;
+    border-top:2px solid var(--rule);padding-top:10px}
+  h3{font-size:17px;letter-spacing:-.2px;margin-bottom:6px}
+  p + p{margin-top:10px}
+  .lede{font-size:17px;max-width:60ch}
+  .muted{color:var(--ink-soft);font-size:14px}
+
+  .panel{background:var(--panel);border:1px solid var(--line);padding:18px}
+  .panel + .panel{margin-top:10px}
+
+  /* --- ヒーロー: 入力 → 答え の一往復 --- */
+  .worksheet{background:var(--panel);border:2px solid var(--rule);margin-top:26px}
+  .ws-head{padding:12px 16px;border-bottom:1px solid var(--line);
+    display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline}
+  .ws-head b{font-size:11px;letter-spacing:1.5px;text-transform:uppercase}
+  .ws-head span{font-size:14px;color:var(--ink-soft)}
+  .ws-body{padding:16px}
+
+  .strip{display:flex;flex-wrap:wrap;gap:4px;margin:10px 0 4px}
+  .swatch{width:38px;text-align:center}
+  .swatch i{display:block;height:30px;border:1px solid var(--chip-line);border-radius:3px}
+  .swatch em{display:block;font-size:11px;font-style:normal;color:var(--ink-soft);margin-top:3px}
+  .swatch.pick i{border:3px solid var(--ink);height:30px}
+  .swatch.pick em{color:var(--ink);font-weight:800}
+
+  .reading{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;margin-top:14px}
+  .reading .big{font-size:34px;font-weight:800}
+  .verdict{font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    color:#fff;background:var(--low);padding:3px 8px;border-radius:3px}
+  @media (prefers-color-scheme: dark){ .verdict{color:#06202A} }
+  .reading .to{font-size:16px;color:var(--ink-soft)}
+
+  .arrow{margin:18px 0 6px;font-size:11px;letter-spacing:2px;text-transform:uppercase;
+    color:var(--ink-soft);font-weight:800;border-top:1px dashed var(--rule);padding-top:12px}
+
+  .doses{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+  .dose{border:1px solid var(--line);padding:14px;background:var(--bg)}
+  .dose .prod{font-size:13px;font-weight:800;letter-spacing:.3px;text-transform:uppercase}
+  .dose .amt{margin-top:8px;font-size:30px;font-weight:800;line-height:1.05}
+  .dose .amt small{font-size:16px;font-weight:700}
+  .dose .alt{font-size:14px;color:var(--ink-soft);margin-top:2px}
+  .dose ul{list-style:none;margin-top:10px;border-top:1px solid var(--line);padding-top:8px}
+  .dose li{font-size:13px;color:var(--ink-soft);margin-top:3px}
+  .ws-foot{padding:12px 16px;border-top:1px solid var(--line);font-size:14px;color:var(--ink-soft)}
+
+  /* --- 表 --- */
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{border-collapse:collapse;width:100%;font-size:15px;min-width:320px}
+  th,td{text-align:left;padding:9px 12px 9px 0;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink-soft)}
+  td.y{font-weight:700}
+
+  /* --- 実機スクショ --- */
+  .shots{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));margin-top:16px}
+  .shot figcaption{margin-top:8px;font-size:13px;color:var(--ink-soft)}
+  .shot img{border:1px solid var(--line);border-radius:10px;width:100%}
+
+  /* --- 安全: 製品ラベル風。目立つが最後 --- */
+  .label{margin-top:52px;border:3px solid var(--label-bg)}
+  h2.bar{background:var(--label-bg);color:var(--label-ink);padding:10px 16px;margin:0;
+    font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;border-top:0}
+  .label .in{background:var(--panel);padding:18px 16px}
+  .label ul{list-style:none;margin-top:12px}
+  .label li{position:relative;padding-left:22px;margin-top:8px;font-size:15px}
+  .label li::before{content:"";position:absolute;left:0;top:.55em;
+    width:10px;height:10px;background:var(--label-bg)}
+  .label .first{font-weight:800;font-size:17px}
+
+  footer{margin-top:48px;border-top:2px solid var(--rule);padding-top:14px;
+    color:var(--ink-soft);font-size:14px;display:flex;flex-wrap:wrap;gap:6px 16px}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  }
 </style>
 <meta property="og:title" content="PoolDose — Pool &amp; hot tub dosing, without the subscription">
 <meta property="og:description" content="Enter your test results, get the exact amount of the chemical you actually own. Works offline.">
@@ -60,143 +146,271 @@
 <body>
 <div class="wrap">
 
+  <nav class="utility" aria-label="Support">
+    <strong>PoolDose support</strong>
+    <a href="mailto:nosunosukawa@gmail.com">nosunosukawa@gmail.com</a>
+    <a href="privacy.html">Privacy policy</a>
+    <a href="#questions">Common questions</a>
+  </nav>
+
   <header>
     <h1>PoolDose</h1>
-    <p>Enter your test results. Get the exact amount of the chemical you actually own —
-       for pools and hot tubs of any size.</p>
-    <span class="claim">No subscription. Ever.</span>
+    <p class="tagline">You have the reading.<br>Here are the ounces.</p>
+    <p class="sub">Type what the strip says. PoolDose tells you how much to pour — of the
+       jug that is actually in your shed, at the strength printed on its label.</p>
+    <p class="promise">No subscription. Ever. <span>&mdash; every dose calculation is free</span></p>
   </header>
 
-  <h2 id="support">Support</h2>
-  <div class="card">
-    <div class="pad accent"></div>
-    <div class="body">
-      <h3>Contact</h3>
-      <p>Questions, bug reports, and corrections to the chemistry:
-         <a href="mailto:nosunosukawa@gmail.com">nosunosukawa@gmail.com</a></p>
-      <p class="muted">Solo developer — I read everything, and replies usually take a day or two.
-         If you think a dose looks wrong, tell me your pool volume, the reading, and the product
-         label percentage, and I will check the math against the published tables.</p>
+  <!-- ヒーロー: 入力→答え。数値はすべて poolchem.js(アプリと同じエンジン)で検算済み -->
+  <section class="worksheet" aria-labelledby="worked">
+    <div class="ws-head">
+      <b id="worked">Worked example</b>
+      <span>15,000 gal &middot; chlorine pool &middot; stabilizer (CYA) 40 ppm</span>
     </div>
+
+    <div class="ws-body">
+      <p class="muted">Your free chlorine pad came out pale pink. Tap the swatch it matches,
+         or type the number.</p>
+
+      <div class="strip" role="img" aria-label="Free chlorine strip swatches from 0 to 20 ppm, with 1 ppm selected">
+        <span class="swatch"><i style="background:#FAF5E9"></i><em>0</em></span>
+        <span class="swatch"><i style="background:#F5DCE4"></i><em>0.5</em></span>
+        <span class="swatch pick"><i style="background:#EFC3D5"></i><em>1</em></span>
+        <span class="swatch"><i style="background:#E294BC"></i><em>3</em></span>
+        <span class="swatch"><i style="background:#D26BA6"></i><em>5</em></span>
+        <span class="swatch"><i style="background:#B44A8E"></i><em>10</em></span>
+        <span class="swatch"><i style="background:#8E3477"></i><em>20</em></span>
+      </div>
+
+      <p class="reading">
+        <span class="big num">FC 1.0</span>
+        <span class="verdict">Low</span>
+        <span class="to">target <strong class="num">5.0 ppm</strong> &mdash; because your CYA is 40</span>
+      </p>
+      <p class="muted">PoolDose moves the chlorine target with your stabilizer instead of printing
+         one fixed number. At CYA 40 the floor is 3.0 ppm, so 1.0 is not &ldquo;a bit low&rdquo; &mdash;
+         it is under the line.</p>
+
+      <p class="arrow">Then &mdash; pick the jug you own</p>
+
+      <div class="doses">
+        <article class="dose">
+          <p class="prod">Liquid chlorine 12.5%</p>
+          <p class="amt"><span class="num">61</span> <small>fl oz</small></p>
+          <p class="alt num">7.7 cups &middot; 1.82 L</p>
+          <ul>
+            <li>Also adds salt +3.3 ppm</li>
+            <li>Retest after 30 min</li>
+          </ul>
+        </article>
+        <article class="dose">
+          <p class="prod">Cal-hypo 73%</p>
+          <p class="amt"><span class="num">11</span> <small>oz</small></p>
+          <p class="alt num">312 g</p>
+          <ul>
+            <li>Also adds hardness +2.8 ppm</li>
+            <li>Retest after 30 min</li>
+          </ul>
+        </article>
+        <article class="dose">
+          <p class="prod">Dichlor granules</p>
+          <p class="amt"><span class="num">14.4</span> <small>oz</small></p>
+          <p class="alt num">408 g</p>
+          <ul>
+            <li>Also adds CYA +3.6, alkalinity &minus;1.4</li>
+            <li>Retest after 30 min</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+
+    <p class="ws-foot">Same pool, same reading, three different answers &mdash; because the jugs are
+       not the same chemical. PoolDose prints what else each one puts in your water, so the
+       shortcut you take in July is not the reason you drain in September.</p>
+  </section>
+
+  <h2>What it does</h2>
+
+  <div class="panel">
+    <h3>It answers in ounces, not in advice</h3>
+    <p>Every result carries the amount for your exact volume and your product's strength,
+       how to add it, a per-addition safety cap, a split-dose plan when the amount is too
+       large for one go, and how long to wait before you retest. Amounts round toward
+       under-dosing, never over.</p>
+    <p class="muted">Example: 6 lb 4.9 oz of baking soda to take a 15,000 gal pool from 60 to 90 ppm
+       alkalinity is more than one safe addition, so PoolDose splits it into 3 lb + 3 lb + 4.9 oz
+       with a 6-hour wait between each.</p>
   </div>
 
-  <h2>Common questions</h2>
-
-  <div class="card">
-    <div class="pad ok"></div>
-    <div class="body">
-      <h3>What is free, and what does the one-time unlock add?</h3>
-      <p>Free covers the volume calculator, test logging with instant Low/OK/High verdicts,
-         the last 7 days of history, and liquid chlorine dosing for one chlorine pool.</p>
-      <p>The one-time PoolDose Pro purchase adds every other chemical (acids, Cal-Hypo,
-         dichlor, trichlor, baking soda, calcium chloride, CYA, salt, bromine), salt water
-         and bromine pools, unlimited history and trend charts, reminders, and multiple pools.
-         It is a single purchase, not a subscription, and it does not expire.</p>
-    </div>
+  <div class="panel">
+    <h3>It puts the fixes in the order that works</h3>
+    <p>Sanitizer first, then alkalinity, then pH, then hardness, stabilizer and salt.
+       Most &ldquo;my pH won't stay put&rdquo; problems are alkalinity problems, so alkalinity
+       goes before pH &mdash; the app says so on the screen, in that order, with the amount on
+       each line.</p>
   </div>
 
-  <div class="card">
-    <div class="pad accent"></div>
-    <div class="body">
-      <h3>I paid but the app still shows the lock</h3>
-      <p>Open <strong>Settings → View PoolDose Pro → Restore purchase</strong> while signed in
-         with the same Apple ID you bought it with. The unlock is tied to the Apple ID, not the
-         device, so it carries to a new phone.</p>
-    </div>
+  <div class="panel">
+    <h3>Shock and algae get the same treatment</h3>
+    <p>Taking that 15,000 gal pool from FC 1 to 10 ppm is 1.08 gal of 12.5% liquid chlorine,
+       or 1 lb 11.7 oz of 65% cal-hypo. The liquid adds 7.4 ppm of salt; the cal-hypo adds
+       6.3 ppm of calcium hardness. Same shock, different bill later.</p>
   </div>
 
-  <div class="card">
-    <div class="pad low"></div>
-    <div class="body">
-      <h3>Where do the amounts come from?</h3>
-      <p>Linear parameters (chlorine, alkalinity, calcium, CYA, salt, bromine) are pure
-         stoichiometry from your water volume and the product's active-ingredient percentage.
-         pH uses a carbonate-plus-cyanurate buffer model, pinned in tests against the published
-         dosing tables.</p>
-      <p>Every result carries a per-addition safety cap, a split-dose plan when the amount is
-         large, and a retest interval. Amounts round toward under-dosing rather than over-dosing.</p>
-    </div>
+  <div class="panel">
+    <h3>Pools, hot tubs, salt water, bromine</h3>
+    <p>Volume comes from a shape template (rectangle, circle, oval, kidney) or straight from
+       a number you type &mdash; there is no minimum, so a 350-gallon hot tub is a first-class
+       case, not a rounding error. Target ranges change with the water: a spa on bromine
+       aims at 4&ndash;6 ppm bromine, a salt pool aims at 60&ndash;80 ppm stabilizer and
+       2,700&ndash;3,400 ppm salt.</p>
   </div>
 
-  <div class="card">
-    <div class="pad high"></div>
-    <div class="body">
-      <h3>Why doesn't it read my test strip with the camera?</h3>
-      <p>Because camera strip reading is unreliable in real conditions — lighting, shade and
-         camera differences move the colors, and that is the single biggest complaint against
-         the apps that do it. PoolDose shows the color swatches on screen instead: you hold
-         your strip next to them and tap the closest match, or type the number. People are
-         good at comparing two colors side by side; putting a camera in between breaks it.</p>
-    </div>
+  <h2>Why there is no camera</h2>
+  <div class="panel">
+    <p class="lede">Because reading a strip through a camera is the thing people complain about
+       most in the apps that do it. Shade, cloud, a wet lens, a different phone &mdash; the colors
+       move, and the app is confidently wrong about your chlorine.</p>
+    <p>PoolDose puts the swatches on the screen instead. You hold the strip next to the phone
+       and tap the closest pad, or type the number if you use drops. Two colors side by side is
+       something people are genuinely good at. Putting a camera in the middle is what breaks it.</p>
   </div>
 
-  <div class="card">
-    <div class="pad ok"></div>
-    <div class="body">
-      <h3>Does it work without a signal?</h3>
-      <p>Yes — everything runs on your device. There is no account, no sign-in, and no server.
-         The app never needs a connection except when the App Store handles your purchase.</p>
-    </div>
+  <h2>On the phone</h2>
+  <div class="shots">
+    <figure class="shot">
+      <img src="assets/01-home.png" alt="PoolDose home screen: Backyard pool, 5,944 gallons, one thing to fix, with the logged dose of 23 fl oz of liquid chlorine and the latest test verdicts." width="640" height="1390" loading="lazy">
+      <figcaption>Home &mdash; what to fix, in order, with the amount already on the line.</figcaption>
+    </figure>
+    <figure class="shot">
+      <img src="assets/02-log-a-test.png" alt="Logging a test in PoolDose using on-screen strip color swatches for free chlorine, pH, total alkalinity and calcium hardness." width="640" height="1390" loading="lazy">
+      <figcaption>Log a test &mdash; tap the swatch that matches your pad, or type it.</figcaption>
+    </figure>
+    <figure class="shot">
+      <img src="assets/04-dose-calculator.png" alt="PoolDose dose calculator: free chlorine 1 to 5.8, liquid chlorine at 12.5% strength, result add 29 fluid ounces, retest after 30 minutes." width="640" height="1390" loading="lazy">
+      <figcaption>Dose calculator &mdash; pick the product and its strength; it is remembered.</figcaption>
+    </figure>
+    <figure class="shot">
+      <img src="assets/07-hot-tub-bromine.png" alt="PoolDose hot tub profile: 350 gallon spa on bromine with target ranges for bromine, pH, total alkalinity and calcium hardness." width="640" height="1390" loading="lazy">
+      <figcaption>A 350-gallon hot tub on bromine, alongside the pool.</figcaption>
+    </figure>
   </div>
 
-  <div class="card">
-    <div class="pad accent"></div>
-    <div class="body">
-      <h3>Which units does it use?</h3>
-      <p>Both. Gallons or liters for volume, feet or meters for pool dimensions, oz/lb or g/mL
-         for doses, °F or °C for water temperature. Switch the whole app in
-         <strong>Settings → Units</strong>.</p>
+  <h2>Free, and the one-time unlock</h2>
+  <div class="panel">
+    <p class="lede">Every dose calculation is free &mdash; every chemical, every reading, every
+       sanitizer, for one body of water. The calculator is not the thing being sold.</p>
+    <p class="muted">PoolDose Pro is a single $5.99 purchase. It does not expire and it is not
+       a subscription.</p>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr><th scope="col">&nbsp;</th><th scope="col">Free</th><th scope="col">Pro &mdash; $5.99 once</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Dosing for every chemical, at your product's strength</td><td class="y">Yes</td><td class="y">Yes</td></tr>
+          <tr><td>Chlorine, salt water and bromine</td><td class="y">Yes</td><td class="y">Yes</td></tr>
+          <tr><td>Low / OK / High verdicts and the full fix list</td><td class="y">Yes</td><td class="y">Yes</td></tr>
+          <tr><td>Logging tests and doses</td><td class="y">Unlimited</td><td class="y">Unlimited</td></tr>
+          <tr><td>Reading your history back</td><td>Last 7 days</td><td class="y">All of it</td></tr>
+          <tr><td>Trend charts</td><td>&mdash;</td><td class="y">Yes</td></tr>
+          <tr><td>Water balance (LSI) &mdash; scaling vs. corrosion</td><td>&mdash;</td><td class="y">Yes</td></tr>
+          <tr><td>Test and maintenance reminders</td><td>&mdash;</td><td class="y">Yes</td></tr>
+          <tr><td>Chemical inventory</td><td>&mdash;</td><td class="y">Yes</td></tr>
+          <tr><td>Your own target ranges</td><td>Standard ranges</td><td class="y">Editable</td></tr>
+          <tr><td>Pools and hot tubs</td><td>One</td><td class="y">As many as you like</td></tr>
+          <tr><td>CSV export of every test and dose</td><td>&mdash;</td><td class="y">Yes</td></tr>
+        </tbody>
+      </table>
     </div>
+    <p class="muted">Nothing is deleted when you stay free: entries older than 7 days are kept on
+       your phone and reappear if you ever unlock. The free version also nudges you on screen
+       when it has been 3 days since your last test &mdash; you should not have to pay to be
+       reminded to test.</p>
   </div>
 
-  <h2>Guides</h2>
-  <div class="card">
-    <div class="pad accent"></div>
-    <div class="body">
-      <h3><a href="chlorine-calculator.html">Pool chlorine calculator</a></h3>
-      <p>Enter your pool volume and current/target FC — get the exact dose for liquid
-         chlorine, cal-hypo, dichlor or trichlor, with split-dose limits and side
-         effects. Runs the same engine as the app, free in your browser.</p>
-    </div>
-  </div>
-  <div class="card">
-    <div class="pad accent"></div>
-    <div class="body">
-      <h3><a href="chlorine-dosage.html">How much chlorine to add to a pool</a></h3>
-      <p>A dosage chart for 5,000–25,000 gallon pools, generated by the same engine that
-         runs in the app — plus what each chlorine product silently adds to your water
-         besides chlorine.</p>
-    </div>
-  </div>
-  <div class="card">
-    <div class="pad accent"></div>
-    <div class="body">
-      <h3><a href="baking-soda-alkalinity.html">How much baking soda to raise alkalinity</a></h3>
-      <p>Baking-soda amounts to raise TA by 10–30 ppm by pool size, when a dose has to be
-         split, and the baking soda vs soda ash question — with the TA side effect of
-         soda ash quantified by the engine.</p>
-    </div>
+  <h2 id="questions">Common questions</h2>
+
+  <div class="panel">
+    <h3>I paid but the app still shows the lock</h3>
+    <p>Open <strong>Settings &rarr; View PoolDose Pro &rarr; Restore purchase</strong>, signed in
+       with the same Apple ID you bought it with. The unlock belongs to the Apple ID, not the
+       phone, so it moves with you to a new one. If it still says no purchase was found, email
+       me and I will help.</p>
   </div>
 
-  <h2>Safety</h2>
-  <div class="card">
-    <div class="pad high"></div>
-    <div class="body">
-      <h3>Read this before you add anything</h3>
-      <p>PoolDose gives general guidance based on standard pool chemistry. It is not a
-         substitute for the instructions on your chemical product labels.</p>
+  <div class="panel">
+    <h3>Does it work with no signal?</h3>
+    <p>Yes. There is no account, no sign-in and no server &mdash; the chemistry runs on your phone.
+       The only time PoolDose needs a connection is when the App Store handles a purchase.</p>
+  </div>
+
+  <div class="panel">
+    <h3>Gallons or liters?</h3>
+    <p>Both, and you can switch the whole app in <strong>Settings &rarr; Units</strong>: gallons or
+       liters, feet or meters for pool dimensions, oz/lb or g/mL for doses, &deg;F or &deg;C for
+       water temperature. Dimension fields always show which unit they are in &mdash; feet read as
+       meters is a 35&times; volume error, and it would be your dose that was wrong.</p>
+  </div>
+
+  <div class="panel">
+    <h3>Where do the amounts come from?</h3>
+    <p>Chlorine, bromine, alkalinity, calcium, stabilizer and salt are straight stoichiometry
+       from your water volume and the active-ingredient percentage on your product. pH uses a
+       carbonate-plus-cyanurate buffer model, pinned in the test suite against published dosing
+       tables.</p>
+    <p>You can check the engine yourself: the
+       <a href="chlorine-calculator.html">chlorine calculator</a> on this site runs the same code
+       as the app, in your browser, for free.</p>
+  </div>
+
+  <div class="panel">
+    <h3>A dose looks wrong to me</h3>
+    <p>Tell me and I will check it. Send your water volume, the reading, the target and the
+       percentage printed on the product label to
+       <a href="mailto:nosunosukawa@gmail.com">nosunosukawa@gmail.com</a>, and I will run it
+       against the published tables and reply with the working. Solo developer &mdash; I read
+       everything, and replies usually take a day or two.</p>
+  </div>
+
+  <h2>Free calculators &amp; guides</h2>
+  <div class="panel">
+    <h3><a href="chlorine-calculator.html">Pool chlorine calculator</a></h3>
+    <p>Enter volume and current/target FC, get the dose for liquid chlorine, cal-hypo, dichlor
+       or trichlor with split-dose limits and side effects. Same engine as the app, in the browser.</p>
+  </div>
+  <div class="panel">
+    <h3><a href="chlorine-dosage.html">How much chlorine to add to a pool</a></h3>
+    <p>A dosage chart for 5,000&ndash;25,000 gallon pools, plus what each chlorine product
+       quietly adds to your water besides chlorine.</p>
+  </div>
+  <div class="panel">
+    <h3><a href="baking-soda-alkalinity.html">How much baking soda to raise alkalinity</a></h3>
+    <p>Amounts to raise total alkalinity by 10&ndash;30 ppm by pool size, when a dose has to be
+       split, and the baking soda vs. soda ash question with the side effect quantified.</p>
+  </div>
+
+  <!-- 安全: 製品ラベル風。目立つが最後 -->
+  <section class="label" aria-labelledby="safety">
+    <h2 class="bar" id="safety">Read before you add anything</h2>
+    <div class="in">
+      <p class="first">If the product label and PoolDose disagree, follow the label.</p>
+      <p class="muted">PoolDose gives general guidance based on standard pool chemistry. It is not
+         a substitute for the instructions on your chemical products.</p>
       <ul>
-        <li>If the label and the app disagree, follow the label.</li>
-        <li>Never mix chemicals with each other — especially chlorine products with acid.</li>
-        <li>Add chemicals to water, never water to chemicals.</li>
-        <li>Store them away from children and pets.</li>
-        <li>When in doubt, add less, circulate, and retest before adding more.</li>
+        <li>Never mix pool chemicals with each other &mdash; chlorine products and acid above all.</li>
+        <li>Add chemicals to water, never water to chemicals. Acid goes into the deep end, away
+            from the walls, with the pump running.</li>
+        <li>Store them dry, sealed, apart from each other, and away from children and pets.</li>
+        <li>When in doubt: add less, circulate, retest, then decide.</li>
       </ul>
     </div>
-  </div>
+  </section>
 
   <footer>
-    © 2026 Nobutaka Kawasaki · <a href="privacy.html">Privacy policy</a>
+    <span>&copy; 2026 Nobutaka Kawasaki</span>
+    <a href="mailto:nosunosukawa@gmail.com">nosunosukawa@gmail.com</a>
+    <a href="privacy.html">Privacy policy</a>
   </footer>
 
 </div>
