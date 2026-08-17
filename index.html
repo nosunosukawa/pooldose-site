@@ -5,138 +5,174 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PoolDose — Chemical Dosing Calculator App for Pools &amp; Hot Tubs</title>
 <meta name="description" content="Support for PoolDose, the pool and hot tub dosing calculator. Enter your test strip reading, get the exact ounces for the jug in your shed. Every dose calculation is free. No subscription.">
+<meta name="theme-color" content="#DCE2E1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D1D1C" media="(prefers-color-scheme: dark)">
 <style>
-  /* 配色はアプリ本体の theme/colors.ts と同じトークン。
-     画面と地続きに見えることが、審査でも利用者にとっても信用になる。
-     ただし本文リンクは --accent だと 4.28:1 しか出ないので --link を別に置く。 */
+  /* ── Tokens ────────────────────────────────────────────────────────────────
+     骨格は「読み取り面(The readout)」。地は濡れたコンクリートの緑みグレーで彩度を殺し、
+     彩度はストリップの参照色と判定色だけに残す。
+     コントラスト実測(最小 5.55:1) は notes/pooldose-design.md の表を参照。 */
   :root{
-    --bg:#E7EFF2; --panel:#FFFFFF; --ink:#06272F; --ink-soft:#4E6B74;
-    --accent:#0E7C97; --link:#0A6A82;
-    --ok:#1B7A5C; --low:#8A5A0E; --high:#A83B27;
-    --line:#C6D9DF; --rule:#06272F;
-    --label-bg:#A83B27; --label-ink:#FFFFFF;
-    --chip-line:#06272F26;
-    --focus:#0E7C97;
+    color-scheme: light dark;
+    --deck:#DCE2E1; --sheet:#F6F8F7;
+    --ink:#14201E;  --ink-2:#4A5957;
+    --water:#0A5F70; --caution:#8F3418; --ok:#14624A;
+    --hair:#B4BFBD;
+    /* 計器の面はテーマで反転しない。色見本は物理的な参照色なので、
+       周囲の明るさが変わると見え方が変わる(同時対比)。実物のボトルの白ラベルと同じ扱い。 */
+    --meter-bg:#0D1D1C; --meter-ink:#E7EEEC; --meter-ink-2:#9DB0AD;
+    --meter-water:#63C8DA; --meter-caution:#F0937A; --meter-rail:#1E3A38;
+    --mat:#F6F8F7; --mat-ink:#14201E; --mat-hair:#B4BFBD;
+    --page:1160px;
+    --f-display:"American Typewriter","AmericanTypewriter-Bold",Rockwell,"Roboto Slab",Georgia,serif;
+    --f-body:Optima,"Optima nova",Candara,"Gill Sans","Gill Sans MT","Trebuchet MS",system-ui,sans-serif;
+    --f-data:Menlo,"SF Mono",SFMono-Regular,ui-monospace,Consolas,"DejaVu Sans Mono",monospace;
   }
   @media (prefers-color-scheme: dark){
     :root{
-      --bg:#06202A; --panel:#0E2E3A; --ink:#E4F0F3; --ink-soft:#9BB4BC;
-      --accent:#35A8C6; --link:#5CC4DE;
-      --ok:#35C79A; --low:#E5AC4A; --high:#F09077;
-      --line:#224856; --rule:#5D8794;
-      --label-bg:#4A1A12; --label-ink:#FFD9CF;
-      --chip-line:#FFFFFF33;
-      --focus:#5CC4DE;
+      --deck:#0D1D1C; --sheet:#142A29;
+      --ink:#E7EEEC;  --ink-2:#9DB0AD;
+      --water:#63C8DA; --caution:#F0937A; --ok:#46C79B;
+      --hair:#2C4544;
+      --meter-bg:#122422; --meter-rail:#294F4C;
     }
   }
+
   *{box-sizing:border-box;margin:0;padding:0}
   html{-webkit-text-size-adjust:100%}
-  body{background:var(--bg);color:var(--ink);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    line-height:1.55;-webkit-font-smoothing:antialiased;
-    padding:0 16px 56px;overflow-x:hidden;overflow-wrap:break-word}
-  .wrap{max-width:760px;margin:0 auto}
-  a{color:var(--link);font-weight:600}
+  body{background:var(--deck);color:var(--ink);
+    font-family:var(--f-body);font-size:18px;line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;overflow-wrap:break-word;
+    touch-action:manipulation}
+  h1,h2,h3{font-family:var(--f-display);font-weight:700;text-wrap:balance;line-height:1.15}
+  p{text-wrap:pretty}
+  a{color:var(--water);font-weight:600}
   a:hover{text-decoration-thickness:2px}
-  :focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:2px}
+  :focus-visible{outline:3px solid var(--water);outline-offset:2px;border-radius:2px}
   img{max-width:100%;height:auto;display:block}
+  [id]{scroll-margin-top:16px}
 
-  /* 数字は等幅。裏庭で濡れた手で読む数字が、桁でずれない */
-  .num{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-    font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+  .num{font-family:var(--f-data);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+  .lab{font-family:var(--f-data);font-size:11px;font-weight:700;
+    letter-spacing:1.6px;text-transform:uppercase;line-height:1.2}
 
-  /* --- 最上部: サポート窓口とプライバシーは、スクロールせずに見える位置 --- */
-  .utility{border-bottom:2px solid var(--rule);padding:1px 0;
-    display:flex;flex-wrap:wrap;gap:0 18px;align-items:baseline;font-size:14px}
-  .utility strong{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
-    color:var(--ink-soft);font-weight:800;padding:11px 0}
-  /* 44px 相当のタップ領域。文中のリンクではなく単独の導線なので確保する */
-  .utility a{display:inline-block;padding:11px 0;overflow-wrap:anywhere;max-width:100%}
+  /* 全幅の帯。ページの左右パディングは .wrap が持つので、帯は素で全幅に伸びる。 */
+  .band{width:100%}
+  .wrap{max-width:calc(var(--page) + 64px);margin:0 auto;padding:0 16px}
+  @media (min-width:900px){ .wrap{padding:0 32px} }
+  /* 全幅の帯があるのでノッチ側に文字が回り込まないようにする(横持ち) */
+  .wrap{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+  @media (min-width:900px){ .wrap{padding-left:max(32px,env(safe-area-inset-left));padding-right:max(32px,env(safe-area-inset-right))} }
 
-  header{padding:28px 0 4px}
-  h1{font-size:15px;letter-spacing:3px;text-transform:uppercase;font-weight:800}
-  .tagline{margin-top:14px;font-size:clamp(27px,7vw,40px);line-height:1.1;
-    letter-spacing:-.9px;font-weight:800}
-  .sub{margin-top:14px;font-size:17px;color:var(--ink-soft);max-width:46ch}
-  .promise{display:inline-block;margin-top:20px;font-size:13px;font-weight:800;
-    letter-spacing:.6px;text-transform:uppercase;
-    color:var(--ink);border:2px solid var(--rule);padding:7px 12px}
-  .promise span{color:var(--ink-soft);font-weight:700;text-transform:none;letter-spacing:0}
+  .skip{position:absolute;left:-9999px;top:0;background:var(--sheet);color:var(--ink);
+    padding:10px 14px;z-index:9;font-weight:700}
+  .skip:focus{left:8px;top:8px}
 
-  h2{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-soft);
-    margin:52px 0 14px;font-weight:800;
-    border-top:2px solid var(--rule);padding-top:10px}
-  h3{font-size:17px;letter-spacing:-.2px;margin-bottom:6px}
-  p + p{margin-top:10px}
-  .lede{font-size:17px;max-width:60ch}
-  .muted{color:var(--ink-soft);font-size:14px}
+  /* ── 上部ユーティリティ(App Store 必須URLの導線) ── */
+  .utility{border-bottom:2px solid var(--ink);display:flex;flex-wrap:wrap;
+    gap:0 20px;align-items:baseline;font-family:var(--f-data);font-size:13px}
+  .utility b{font-size:11px;letter-spacing:1.6px;text-transform:uppercase;
+    color:var(--ink-2);padding:12px 0}
+  /* 44px のタップ領域。第1波の a11y 修正(親の padding をリンク側へ)を維持する。 */
+  .utility a{display:inline-block;padding:12px 0;overflow-wrap:anywhere;max-width:100%}
 
-  .panel{background:var(--panel);border:1px solid var(--line);padding:18px}
-  .panel + .panel{margin-top:10px}
+  /* ── ヒーローの文字 ── */
+  .top{padding-top:38px;padding-bottom:34px}
+  h1{font-size:clamp(34px,8.5vw,60px);letter-spacing:-.5px;line-height:1.02;max-width:16ch}
+  .sub{margin-top:18px;font-size:21px;line-height:1.45;max-width:34em}
 
-  /* --- ヒーロー: 入力 → 答え の一往復 --- */
-  .worksheet{background:var(--panel);border:2px solid var(--rule);margin-top:26px}
-  .ws-head{padding:12px 16px;border-bottom:1px solid var(--line);
-    display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline}
-  .ws-head b{font-size:11px;letter-spacing:1.5px;text-transform:uppercase}
-  .ws-head span{font-size:14px;color:var(--ink-soft)}
-  .ws-body{padding:16px}
+  /* ── 計器の面 ── */
+  .meter{background:var(--meter-bg);color:var(--meter-ink);padding:22px 0 26px;
+    border-top:1px solid var(--meter-rail);border-bottom:1px solid var(--meter-rail)}
+  .meter .lab{color:var(--meter-ink-2)}
+  .meter-head{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline;
+    padding-bottom:18px;border-bottom:1px solid var(--meter-rail)}
+  .meter-head span{font-family:var(--f-data);font-size:13px;color:var(--meter-ink-2)}
+  .rig{display:grid;gap:22px;padding-top:20px;align-items:start}
+  @media (min-width:900px){ .rig{grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:32px} }
 
-  .strip{display:flex;flex-wrap:wrap;gap:4px;margin:10px 0 4px}
-  .swatch{width:38px;text-align:center}
-  .swatch i{display:block;height:30px;border:1px solid var(--chip-line);border-radius:3px}
-  .swatch em{display:block;font-size:11px;font-style:normal;color:var(--ink-soft);margin-top:3px}
-  .swatch.pick i{border:3px solid var(--ink);height:30px}
-  .swatch.pick em{color:var(--ink);font-weight:800}
+  /* 色見本は必ず固定の白い台紙の上。HTML で組むのは、ラベルを実 px に保ち
+     利用者の文字サイズ設定に追従させるため(SVG に入れると viewBox で拡縮してしまう)。 */
+  .mat{background:var(--mat);color:var(--mat-ink);padding:14px}
+  .mat .lab{color:var(--mat-ink)}
+  .chips{display:flex;gap:4px;margin-top:10px}
+  .chip{flex:1 1 0;min-width:0;text-align:center}
+  /* 最淡 #FAF5E9 は台紙に対し 1.02:1 = ほぼ見えない。輪郭線は装飾ではなく必須。 */
+  .chip i{display:block;height:44px;border:1px solid #14201E33;border-radius:2px}
+  /* 淡側の隣接 ΔL は 0.054 で目では順序が付かない。数値ラベルも必須。 */
+  .chip em{display:block;font-family:var(--f-data);font-size:12px;font-style:normal;
+    margin-top:5px;color:#4A5957}
+  .chip.on i{border:3px solid var(--mat-ink)}
+  .chip.on em{color:var(--mat-ink);font-weight:700}
 
-  .reading{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;margin-top:14px}
-  .reading .big{font-size:34px;font-weight:800}
-  .verdict{font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
-    color:#fff;background:var(--low);padding:3px 8px;border-radius:3px}
-  @media (prefers-color-scheme: dark){ .verdict{color:#06202A} }
-  .reading .to{font-size:16px;color:var(--ink-soft)}
+  /* ◆ シグネチャ: 差に値札が付く目盛 ◆ */
+  .gauge{width:100%;max-width:640px;height:auto;display:block}
 
-  .arrow{margin:18px 0 6px;font-size:11px;letter-spacing:2px;text-transform:uppercase;
-    color:var(--ink-soft);font-weight:800;border-top:1px dashed var(--rule);padding-top:12px}
+  .tiles{display:grid;gap:10px;margin-top:20px;
+    grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+  .tile{border:1px solid var(--meter-rail);padding:14px}
+  .tile .lab{color:var(--meter-ink-2)}
+  .tile .amt{font-family:var(--f-data);font-variant-numeric:tabular-nums;
+    font-size:30px;font-weight:700;letter-spacing:-1px;margin-top:8px;line-height:1.05}
+  .tile .alt{font-family:var(--f-data);font-size:14px;color:var(--meter-ink-2);margin-top:2px}
+  .tile .side{font-family:var(--f-data);font-size:13px;color:var(--meter-caution);
+    margin-top:10px;padding-top:8px;border-top:1px solid var(--meter-rail)}
+  .meter-foot{margin-top:18px;font-size:17px;color:var(--meter-ink-2)}
 
-  .doses{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
-  .dose{border:1px solid var(--line);padding:14px;background:var(--bg)}
-  .dose .prod{font-size:13px;font-weight:800;letter-spacing:.3px;text-transform:uppercase}
-  .dose .amt{margin-top:8px;font-size:30px;font-weight:800;line-height:1.05}
-  .dose .amt small{font-size:16px;font-weight:700}
-  .dose .alt{font-size:14px;color:var(--ink-soft);margin-top:2px}
-  .dose ul{list-style:none;margin-top:10px;border-top:1px solid var(--line);padding-top:8px}
-  .dose li{font-size:13px;color:var(--ink-soft);margin-top:3px}
-  .ws-foot{padding:12px 16px;border-top:1px solid var(--line);font-size:14px;color:var(--ink-soft)}
+  /* ── 信用の帯 ── */
+  .trust{border-bottom:2px solid var(--ink);font-family:var(--f-data);font-size:13px;
+    display:flex;flex-wrap:wrap;gap:0 18px;align-items:baseline;color:var(--ink-2)}
+  .trust span,.trust a{display:inline-block;padding:13px 0}
+  /* 区切りは CSS の生成内容。本文の文字数を増やさずに読みの切れ目を作る。 */
+  .trust span::after{content:"\00B7";margin-left:18px;color:var(--hair)}
 
-  /* --- 表 --- */
-  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  table{border-collapse:collapse;width:100%;font-size:15px;min-width:320px}
-  th,td{text-align:left;padding:9px 12px 9px 0;border-bottom:1px solid var(--line);vertical-align:top}
-  th{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink-soft)}
-  td.y{font-weight:700}
+  /* ── 3ステップ(絵が先・文はキャプションの長さ) ── */
+  .steps{display:grid;gap:30px;padding-top:38px;padding-bottom:38px}
+  @media (min-width:900px){ .steps{grid-template-columns:repeat(3,1fr);gap:30px} }
+  .step figcaption{font-size:17px;margin-top:14px;max-width:32ch}
+  /* 端末フレームは CSS で描く。外部画像を足さない。ページ唯一の丸み。 */
+  .phone{border:2px solid var(--ink);border-radius:34px;padding:7px;
+    background:var(--sheet);max-width:290px;margin:0 auto}
+  .phone img{border-radius:27px;width:100%}
 
-  /* --- 実機スクショ --- */
-  .shots{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-top:16px}
-  .shot figcaption{margin-top:8px;font-size:13px;color:var(--ink-soft)}
-  .shot img{border:1px solid var(--line);border-radius:10px;width:100%}
+  /* ── 図表2: 分割投与 ── */
+  .split{background:var(--sheet);border-top:2px solid var(--ink);
+    border-bottom:2px solid var(--ink);padding:30px 0}
+  .split h2{font-size:22px;letter-spacing:-.2px}
+  .split .lab{color:var(--ink-2);margin-bottom:6px}
+  .step-chart{width:100%;max-width:640px;height:auto;display:block;margin:18px 0 0}
+  .split p{margin-top:16px;font-size:17px;max-width:52ch}
 
-  /* --- 安全: 製品ラベル風。目立つが最後 --- */
-  .label{margin-top:52px;border:3px solid var(--label-bg)}
-  h2.bar{background:var(--label-bg);color:var(--label-ink);padding:10px 16px;margin:0;
-    font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;border-top:0}
-  .label .in{background:var(--panel);padding:18px 16px}
-  .label ul{list-style:none;margin-top:12px}
-  .label li{position:relative;padding-left:22px;margin-top:8px;font-size:15px}
-  .label li::before{content:"";position:absolute;left:0;top:.55em;
-    width:10px;height:10px;background:var(--label-bg)}
-  .label .first{font-weight:800;font-size:17px}
+  /* ── スパ ── */
+  .spa{display:grid;gap:24px;padding-top:38px;padding-bottom:38px;align-items:center}
+  @media (min-width:900px){ .spa{grid-template-columns:290px minmax(0,1fr);gap:44px} }
+  .spa figcaption{font-size:21px;max-width:22ch}
 
-  footer{margin-top:48px;border-top:2px solid var(--rule);padding-top:3px;
-    color:var(--ink-soft);font-size:14px;display:flex;flex-wrap:wrap;gap:0 16px;
-    align-items:baseline}
-  footer span{padding:11px 0}
-  footer a{display:inline-block;padding:11px 0;overflow-wrap:anywhere;max-width:100%}
+  /* ── 価格 ── */
+  .price{border-top:1px solid var(--hair);padding-top:30px;padding-bottom:38px}
+  .price p{font-size:19px;max-width:44em}
+  .price .fine{font-size:15px;color:var(--ink-2);margin-top:10px}
+  .price .more{margin-top:16px;font-family:var(--f-data);font-size:15px;display:inline-block;padding:6px 0}
+
+  /* ── 安全: 薬品ラベルの警告板。この分野の4本は誰も載せていない。 ── */
+  .label{border:3px solid var(--caution);margin-bottom:38px}
+  .label h2{background:var(--caution);color:#FFF;padding:12px 16px;
+    font-family:var(--f-data);font-size:13px;font-weight:700;
+    letter-spacing:2px;text-transform:uppercase}
+  @media (prefers-color-scheme: dark){ .label h2{color:#0D1D1C} }
+  .label .in{background:var(--sheet);padding:18px 16px}
+  .label .first{font-size:21px;font-weight:700;max-width:26em}
+  .label ul{list-style:none;margin-top:14px}
+  .label li{position:relative;padding-left:22px;margin-top:9px;font-size:16px}
+  .label li::before{content:"";position:absolute;left:0;top:.5em;
+    width:10px;height:10px;background:var(--caution)}
+
+  footer{border-top:2px solid var(--ink);color:var(--ink-2);
+    font-family:var(--f-data);font-size:13px;
+    display:flex;flex-wrap:wrap;gap:0 18px;align-items:baseline;padding-bottom:20px}
+  footer span,footer a{display:inline-block;padding:13px 0;
+    overflow-wrap:anywhere;max-width:100%}
 
   @media (prefers-reduced-motion:reduce){
     *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
@@ -149,275 +185,256 @@
 <link rel="canonical" href="https://nosunosukawa.github.io/pooldose-site/">
 </head>
 <body>
-<div class="wrap">
 
-  <nav class="utility" aria-label="Support">
-    <strong>PoolDose support</strong>
-    <a href="mailto:nosunosukawa@gmail.com">nosunosukawa@gmail.com</a>
-    <a href="privacy.html">Privacy policy</a>
-    <a href="#questions">Common questions</a>
-  </nav>
+<a class="skip" href="#main">Skip to content</a>
 
-  <header>
-    <h1>PoolDose</h1>
-    <p class="tagline">You have the reading.<br>Here are the ounces.</p>
-    <p class="sub">Type what the strip says. PoolDose tells you how much to pour — of the
-       jug that is actually in your shed, at the strength printed on its label.</p>
-    <p class="promise">No subscription. Ever. <span>&mdash; every dose calculation is free</span></p>
-  </header>
-
-  <!-- ヒーロー: 入力→答え。数値はすべて poolchem.js(アプリと同じエンジン)で検算済み -->
-  <section class="worksheet" aria-labelledby="worked">
-    <div class="ws-head">
-      <b id="worked">Worked example</b>
-      <span>15,000 gal &middot; chlorine pool &middot; stabilizer (CYA) 40 ppm</span>
-    </div>
-
-    <div class="ws-body">
-      <p class="muted">Your free chlorine pad came out pale pink. Tap the swatch it matches,
-         or type the number.</p>
-
-      <div class="strip" role="img" aria-label="Free chlorine strip swatches from 0 to 20 ppm, with 1 ppm selected">
-        <span class="swatch"><i style="background:#FAF5E9"></i><em>0</em></span>
-        <span class="swatch"><i style="background:#F5DCE4"></i><em>0.5</em></span>
-        <span class="swatch pick"><i style="background:#EFC3D5"></i><em>1</em></span>
-        <span class="swatch"><i style="background:#E294BC"></i><em>3</em></span>
-        <span class="swatch"><i style="background:#D26BA6"></i><em>5</em></span>
-        <span class="swatch"><i style="background:#B44A8E"></i><em>10</em></span>
-        <span class="swatch"><i style="background:#8E3477"></i><em>20</em></span>
-      </div>
-
-      <p class="reading">
-        <span class="big num">FC 1.0</span>
-        <span class="verdict">Low</span>
-        <span class="to">target <strong class="num">5.0 ppm</strong> &mdash; because your CYA is 40</span>
-      </p>
-      <p class="muted">PoolDose moves the chlorine target with your stabilizer instead of printing
-         one fixed number. At CYA 40 the floor is 3.0 ppm, so 1.0 is not &ldquo;a bit low&rdquo; &mdash;
-         it is under the line.</p>
-
-      <p class="arrow">Then &mdash; pick the jug you own</p>
-
-      <div class="doses">
-        <article class="dose">
-          <p class="prod">Liquid chlorine 12.5%</p>
-          <p class="amt"><span class="num">61</span> <small>fl oz</small></p>
-          <p class="alt num">7.7 cups &middot; 1.82 L</p>
-          <ul>
-            <li>Also adds salt +3.3 ppm</li>
-            <li>Retest after 30 min</li>
-          </ul>
-        </article>
-        <article class="dose">
-          <p class="prod">Cal-hypo 73%</p>
-          <p class="amt"><span class="num">11</span> <small>oz</small></p>
-          <p class="alt num">312 g</p>
-          <ul>
-            <li>Also adds hardness +2.8 ppm</li>
-            <li>Retest after 30 min</li>
-          </ul>
-        </article>
-        <article class="dose">
-          <p class="prod">Dichlor granules</p>
-          <p class="amt"><span class="num">14.4</span> <small>oz</small></p>
-          <p class="alt num">408 g</p>
-          <ul>
-            <li>Also adds CYA +3.6, alkalinity &minus;1.4</li>
-            <li>Retest after 30 min</li>
-          </ul>
-        </article>
-      </div>
-    </div>
-
-    <p class="ws-foot">Same pool, same reading, three different answers &mdash; because the jugs are
-       not the same chemical. PoolDose prints what else each one puts in your water, so the
-       shortcut you take in July is not the reason you drain in September.</p>
-  </section>
-
-  <h2>What it does</h2>
-
-  <div class="panel">
-    <h3>It answers in ounces, not in advice</h3>
-    <p>Every result carries the amount for your exact volume and your product's strength,
-       how to add it, a per-addition safety cap, a split-dose plan when the amount is too
-       large for one go, and how long to wait before you retest. Amounts round toward
-       under-dosing, never over.</p>
-    <p class="muted">Example: 6 lb 4.9 oz of baking soda to take a 15,000 gal pool from 60 to 90 ppm
-       alkalinity is more than one safe addition, so PoolDose splits it into 3 lb + 3 lb + 4.9 oz
-       with a 6-hour wait between each.</p>
+<div class="band">
+  <div class="wrap">
+    <nav class="utility" aria-label="Support">
+      <b>PoolDose</b>
+      <a href="support.html">Support</a>
+      <a href="privacy.html">Privacy</a>
+    </nav>
   </div>
-
-  <div class="panel">
-    <h3>It puts the fixes in the order that works</h3>
-    <p>Sanitizer first, then alkalinity, then pH, then hardness, stabilizer and salt.
-       Most &ldquo;my pH won't stay put&rdquo; problems are alkalinity problems, so alkalinity
-       goes before pH &mdash; the app says so on the screen, in that order, with the amount on
-       each line.</p>
-  </div>
-
-  <div class="panel">
-    <h3>Shock and algae get the same treatment</h3>
-    <p>Taking that 15,000 gal pool from FC 1 to 10 ppm is 1.08 gal of 12.5% liquid chlorine,
-       or 1 lb 11.7 oz of 65% cal-hypo. The liquid adds 7.4 ppm of salt; the cal-hypo adds
-       6.3 ppm of calcium hardness. Same shock, different bill later.</p>
-  </div>
-
-  <div class="panel">
-    <h3>Pools, hot tubs, salt water, bromine</h3>
-    <p>Volume comes from a shape template (rectangle, circle, oval, kidney) or straight from
-       a number you type &mdash; there is no minimum, so a 350-gallon hot tub is a first-class
-       case, not a rounding error. Target ranges change with the water: a spa on bromine
-       aims at 4&ndash;6 ppm bromine, a salt pool aims at 60&ndash;80 ppm stabilizer and
-       2,700&ndash;3,400 ppm salt.</p>
-  </div>
-
-  <h2>Why there is no camera</h2>
-  <div class="panel">
-    <p class="lede">Because reading a strip through a camera is the thing people complain about
-       most in the apps that do it. Shade, cloud, a wet lens, a different phone &mdash; the colors
-       move, and the app is confidently wrong about your chlorine.</p>
-    <p>PoolDose puts the swatches on the screen instead. You hold the strip next to the phone
-       and tap the closest pad, or type the number if you use drops. Two colors side by side is
-       something people are genuinely good at. Putting a camera in the middle is what breaks it.</p>
-  </div>
-
-  <h2>On the phone</h2>
-  <div class="shots">
-    <figure class="shot">
-      <img src="assets/01-home.png" alt="PoolDose home screen: Backyard pool, 5,944 gallons, one thing to fix, with the logged dose of 23 fl oz of liquid chlorine and the latest test verdicts." width="640" height="1390" loading="lazy">
-      <figcaption>Home &mdash; what to fix, in order, with the amount already on the line.</figcaption>
-    </figure>
-    <figure class="shot">
-      <img src="assets/02-log-a-test.png" alt="Logging a test in PoolDose using on-screen strip color swatches for free chlorine, pH, total alkalinity and calcium hardness." width="640" height="1390" loading="lazy">
-      <figcaption>Log a test &mdash; tap the swatch that matches your pad, or type it.</figcaption>
-    </figure>
-    <figure class="shot">
-      <img src="assets/04-dose-calculator.png" alt="PoolDose dose calculator: free chlorine 1 to 5.8, liquid chlorine at 12.5% strength, result add 29 fluid ounces, retest after 30 minutes." width="640" height="1390" loading="lazy">
-      <figcaption>Dose calculator &mdash; pick the product and its strength; it is remembered.</figcaption>
-    </figure>
-    <figure class="shot">
-      <img src="assets/07-hot-tub-bromine.png" alt="PoolDose hot tub profile: 350 gallon spa on bromine with target ranges for bromine, pH, total alkalinity and calcium hardness." width="640" height="1390" loading="lazy">
-      <figcaption>A 350-gallon hot tub on bromine, alongside the pool.</figcaption>
-    </figure>
-  </div>
-
-  <h2>Free, and the one-time unlock</h2>
-  <div class="panel">
-    <p class="lede">Every dose calculation is free &mdash; every chemical, every reading, every
-       sanitizer, for one body of water. The calculator is not the thing being sold.</p>
-    <p class="muted">PoolDose Pro is a single $5.99 purchase. It does not expire and it is not
-       a subscription.</p>
-    <div class="scroll">
-      <table>
-        <thead>
-          <tr><th scope="col">&nbsp;</th><th scope="col">Free</th><th scope="col">Pro &mdash; $5.99 once</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>Dosing for every chemical, at your product's strength</td><td class="y">Yes</td><td class="y">Yes</td></tr>
-          <tr><td>Chlorine, salt water and bromine</td><td class="y">Yes</td><td class="y">Yes</td></tr>
-          <tr><td>Low / OK / High verdicts and the full fix list</td><td class="y">Yes</td><td class="y">Yes</td></tr>
-          <tr><td>Logging tests and doses</td><td class="y">Unlimited</td><td class="y">Unlimited</td></tr>
-          <tr><td>Reading your history back</td><td>Last 7 days</td><td class="y">All of it</td></tr>
-          <tr><td>Trend charts</td><td>&mdash;</td><td class="y">Yes</td></tr>
-          <tr><td>Water balance (LSI) &mdash; scaling vs. corrosion</td><td>&mdash;</td><td class="y">Yes</td></tr>
-          <tr><td>Test and maintenance reminders</td><td>&mdash;</td><td class="y">Yes</td></tr>
-          <tr><td>Chemical inventory</td><td>&mdash;</td><td class="y">Yes</td></tr>
-          <tr><td>Your own target ranges</td><td>Standard ranges</td><td class="y">Editable</td></tr>
-          <tr><td>Pools and hot tubs</td><td>One</td><td class="y">As many as you like</td></tr>
-          <tr><td>CSV export of every test and dose</td><td>&mdash;</td><td class="y">Yes</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p class="muted">Nothing is deleted when you stay free: entries older than 7 days are kept on
-       your phone and reappear if you ever unlock. The free version also nudges you on screen
-       when it has been 3 days since your last test &mdash; you should not have to pay to be
-       reminded to test.</p>
-  </div>
-
-  <h2 id="questions">Common questions</h2>
-
-  <div class="panel">
-    <h3>I paid but the app still shows the lock</h3>
-    <p>Open <strong>Settings &rarr; View PoolDose Pro &rarr; Restore purchase</strong>, signed in
-       with the same Apple ID you bought it with. The unlock belongs to the Apple ID, not the
-       phone, so it moves with you to a new one. If it still says no purchase was found, email
-       me and I will help.</p>
-  </div>
-
-  <div class="panel">
-    <h3>Does it work with no signal?</h3>
-    <p>Yes. There is no account, no sign-in and no server &mdash; the chemistry runs on your phone.
-       The only time PoolDose needs a connection is when the App Store handles a purchase.</p>
-  </div>
-
-  <div class="panel">
-    <h3>Gallons or liters?</h3>
-    <p>Both, and you can switch the whole app in <strong>Settings &rarr; Units</strong>: gallons or
-       liters, feet or meters for pool dimensions, oz/lb or g/mL for doses, &deg;F or &deg;C for
-       water temperature. Dimension fields always show which unit they are in &mdash; feet read as
-       meters is a 35&times; volume error, and it would be your dose that was wrong.</p>
-  </div>
-
-  <div class="panel">
-    <h3>Where do the amounts come from?</h3>
-    <p>Chlorine, bromine, alkalinity, calcium, stabilizer and salt are straight stoichiometry
-       from your water volume and the active-ingredient percentage on your product. pH uses a
-       carbonate-plus-cyanurate buffer model, pinned in the test suite against published dosing
-       tables.</p>
-    <p>You can check the engine yourself: the
-       <a href="chlorine-calculator.html">chlorine calculator</a> on this site runs the same code
-       as the app, in your browser, for free.</p>
-  </div>
-
-  <div class="panel">
-    <h3>A dose looks wrong to me</h3>
-    <p>Tell me and I will check it. Send your water volume, the reading, the target and the
-       percentage printed on the product label to
-       <a href="mailto:nosunosukawa@gmail.com">nosunosukawa@gmail.com</a>, and I will run it
-       against the published tables and reply with the working. Solo developer &mdash; I read
-       everything, and replies usually take a day or two.</p>
-  </div>
-
-  <h2>Free calculators &amp; guides</h2>
-  <div class="panel">
-    <h3><a href="chlorine-calculator.html">Pool chlorine calculator</a></h3>
-    <p>Enter volume and current/target FC, get the dose for liquid chlorine, cal-hypo, dichlor
-       or trichlor with split-dose limits and side effects. Same engine as the app, in the browser.</p>
-  </div>
-  <div class="panel">
-    <h3><a href="chlorine-dosage.html">How much chlorine to add to a pool</a></h3>
-    <p>A dosage chart for 5,000&ndash;25,000 gallon pools, plus what each chlorine product
-       quietly adds to your water besides chlorine.</p>
-  </div>
-  <div class="panel">
-    <h3><a href="baking-soda-alkalinity.html">How much baking soda to raise alkalinity</a></h3>
-    <p>Amounts to raise total alkalinity by 10&ndash;30 ppm by pool size, when a dose has to be
-       split, and the baking soda vs. soda ash question with the side effect quantified.</p>
-  </div>
-
-  <!-- 安全: 製品ラベル風。目立つが最後 -->
-  <section class="label" aria-labelledby="safety">
-    <h2 class="bar" id="safety">Read before you add anything</h2>
-    <div class="in">
-      <p class="first">If the product label and PoolDose disagree, follow the label.</p>
-      <p class="muted">PoolDose gives general guidance based on standard pool chemistry. It is not
-         a substitute for the instructions on your chemical products.</p>
-      <ul>
-        <li>Never mix pool chemicals with each other &mdash; chlorine products and acid above all.</li>
-        <li>Add chemicals to water, never water to chemicals. Acid goes into the deep end, away
-            from the walls, with the pump running.</li>
-        <li>Store them dry, sealed, apart from each other, and away from children and pets.</li>
-        <li>When in doubt: add less, circulate, retest, then decide.</li>
-      </ul>
-    </div>
-  </section>
-
-  <footer>
-    <span>&copy; 2026 Nobutaka Kawasaki</span>
-    <a href="mailto:nosunosukawa@gmail.com">nosunosukawa@gmail.com</a>
-    <a href="privacy.html">Privacy policy</a>
-  </footer>
-
 </div>
+
+<main id="main">
+
+  <div class="band">
+    <div class="wrap top">
+      <h1>You have the reading. Here are the ounces.</h1>
+      <p class="sub">Type what the strip says. Get the ounces for the jug in your shed, at the
+         strength on its label.</p>
+    </div>
+  </div>
+
+  <!-- ◆ 計器の面。ライト/ダークとも暗い固定面。数値はアプリと同じエンジンの実行値。 ◆ -->
+  <div class="band meter">
+    <div class="wrap">
+
+      <section aria-labelledby="worked">
+      <div class="meter-head">
+        <b class="lab" id="worked">Worked example</b>
+        <span>15,000&nbsp;gal chlorine pool &middot; CYA&nbsp;40</span>
+      </div>
+
+      <div class="rig">
+
+        <div class="mat">
+          <b class="lab">Free chlorine &mdash; match your pad</b>
+          <div class="chips" role="img" aria-label="Test strip colour scale for free chlorine, from 0 to 20 ppm. The reading is 1 ppm.">
+            <span class="chip"><i style="background:#FAF5E9"></i><em>0</em></span>
+            <span class="chip"><i style="background:#F5DCE4"></i><em>0.5</em></span>
+            <span class="chip on"><i style="background:#EFC3D5"></i><em>1</em></span>
+            <span class="chip"><i style="background:#E294BC"></i><em>3</em></span>
+            <span class="chip"><i style="background:#D26BA6"></i><em>5</em></span>
+            <span class="chip"><i style="background:#B44A8E"></i><em>10</em></span>
+            <span class="chip"><i style="background:#8E3477"></i><em>20</em></span>
+          </div>
+        </div>
+
+        <div>
+          <svg class="gauge" viewBox="0 0 560 220" role="img"
+               aria-label="Free chlorine scale from 0 to 10 ppm. The reading is 1.0 ppm, which is below the 3.0 ppm floor for a stabiliser level of 40. The target is 5.0 ppm. Closing that gap takes 61 fluid ounces of 12.5 percent liquid chlorine.">
+            <defs>
+              <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                <rect width="8" height="8" fill="#0D1D1C"/>
+                <rect width="3" height="8" fill="#F0937A"/>
+              </pattern>
+            </defs>
+
+            <!-- 差の値段。ページで最も大きい数字。 -->
+            <text x="187" y="64" text-anchor="middle" fill="#63C8DA"
+                  font-family="Menlo, SF Mono, ui-monospace, monospace"
+                  font-size="46" font-weight="700" letter-spacing="-2">61 fl oz</text>
+
+            <!-- 帯: 床下(0-3.0)。塗り同士は 2px の面色ですき間を空ける。 -->
+            <rect x="40" y="98" width="147" height="9" fill="url(#hatch)"/>
+            <rect x="189" y="102" width="341" height="1" fill="#1E3A38"/>
+
+            <!-- 目盛の台 -->
+            <rect x="40" y="112" width="490" height="30" fill="#1E3A38"/>
+            <!-- 差(1.0 → 5.0) -->
+            <rect x="89" y="112" width="196" height="30" fill="#63C8DA"/>
+
+            <!-- 目盛 1 ppm ごと -->
+            <g stroke="#9DB0AD" stroke-width="1">
+              <path d="M40 146v8M89 146v6M138 146v6M187 146v8M236 146v6M285 146v8M334 146v6M383 146v6M432 146v6M481 146v6M530 146v8"/>
+            </g>
+
+            <!-- マーカー -->
+            <g stroke-width="2">
+              <path d="M89 98v56" stroke="#E7EEEC"/>
+              <path d="M187 98v56" stroke="#F0937A" stroke-dasharray="4 4"/>
+              <path d="M285 98v56" stroke="#63C8DA"/>
+            </g>
+            <path d="M89 158l-7 12h14z" fill="#E7EEEC"/>
+
+            <g font-family="Menlo, SF Mono, ui-monospace, monospace" font-size="17">
+              <text x="89" y="192" text-anchor="middle" fill="#E7EEEC" font-weight="700">FC 1.0</text>
+              <text x="285" y="192" text-anchor="middle" fill="#63C8DA">5.0 target</text>
+            </g>
+            <g font-family="Menlo, SF Mono, ui-monospace, monospace" font-size="15">
+              <text x="187" y="215" text-anchor="middle" fill="#F0937A">3.0 floor</text>
+              <text x="530" y="215" text-anchor="end" fill="#9DB0AD">ppm free chlorine</text>
+            </g>
+            <!-- 判定は語で持つ。Low(琥珀)と High(赤)は deutan で ΔE 1.2 = ほぼ同色なので、
+                 色だけに頼らせない。位置(床の左か右か)でも区別が付く。 -->
+            <rect x="64" y="200" width="50" height="20" fill="#F0937A"/>
+            <text x="89" y="215" text-anchor="middle" fill="#0D1D1C"
+                  font-family="Menlo, SF Mono, ui-monospace, monospace"
+                  font-size="13" font-weight="700" letter-spacing="1">LOW</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 単位が違う量(液量 fl oz と質量 oz)なので、同一軸のグラフにはしない。 -->
+      <div class="tiles">
+        <article class="tile">
+          <p class="lab">Liquid chlorine 12.5%</p>
+          <p class="amt">61 fl oz</p>
+          <p class="alt">7.7 cups &middot; 1.82&nbsp;L</p>
+          <p class="side">salt +3.3</p>
+        </article>
+        <article class="tile">
+          <p class="lab">Cal-hypo 73%</p>
+          <p class="amt">11 oz</p>
+          <p class="alt">312&nbsp;g</p>
+          <p class="side">hardness +2.5</p>
+        </article>
+        <article class="tile">
+          <p class="lab">Dichlor</p>
+          <p class="amt">14.4 oz</p>
+          <p class="alt">408&nbsp;g</p>
+          <p class="side">CYA +3.6 &middot; TA &minus;1.4</p>
+        </article>
+      </div>
+
+      <p class="meter-foot">Same pool, same reading, three answers.</p>
+      </section>
+    </div>
+  </div>
+
+  <div class="band">
+    <div class="wrap">
+      <p class="trust">
+        <span>Works offline</span>
+        <span>No account</span>
+        <span>$5.99 once, no subscription</span>
+        <a href="support.html#amounts">Check the math yourself</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="band">
+    <div class="wrap steps">
+      <figure class="step">
+        <div class="phone">
+          <img src="assets/02-log-a-test.png" width="640" height="1390" fetchpriority="high"
+               alt="Logging a test in PoolDose using on-screen strip colour swatches for free chlorine, pH, total alkalinity and calcium hardness.">
+        </div>
+        <figcaption>Tap the swatch that matches your pad, or type it.</figcaption>
+      </figure>
+      <figure class="step">
+        <div class="phone">
+          <img src="assets/04-dose-calculator.png" width="640" height="1390" loading="lazy"
+               alt="PoolDose dose calculator: free chlorine 1 to 5.8, liquid chlorine at 12.5 percent strength, result add 29 fluid ounces, retest after 30 minutes.">
+        </div>
+        <figcaption>Pick the jug you own and its strength.</figcaption>
+      </figure>
+      <figure class="step">
+        <div class="phone">
+          <img src="assets/01-home.png" width="640" height="1390" loading="lazy"
+               alt="PoolDose home screen: Backyard pool, 5,944 gallons, one thing to fix, with the logged dose of 23 fluid ounces of liquid chlorine and the latest test verdicts.">
+        </div>
+        <figcaption>What to fix, in order, with the amount on the line.</figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <!-- 図表2: 分割投与。1系列なので凡例は置かず、各段に直接ラベル。 -->
+  <div class="band split">
+    <div class="wrap">
+      <p class="lab">Too big for one dose</p>
+      <h2>Total alkalinity 60 &rarr; 90 ppm</h2>
+
+      <svg class="step-chart" viewBox="0 0 560 210" role="img"
+           aria-label="Total alkalinity rising from 60 to 90 ppm in three additions of baking soda: 3 pounds at hour zero, 3 pounds at hour six, and 4.9 ounces at hour twelve.">
+        <g stroke="var(--hair)" stroke-width="1">
+          <path d="M56 162.4h464M56 105h464M56 47.6h464"/>
+        </g>
+        <g font-family="Menlo, SF Mono, ui-monospace, monospace" font-size="15" fill="var(--ink-2)">
+          <text x="48" y="167" text-anchor="end">60</text>
+          <text x="48" y="110" text-anchor="end">75</text>
+          <text x="48" y="53" text-anchor="end">90</text>
+          <text x="56" y="192" text-anchor="middle">0h</text>
+          <text x="270" y="192" text-anchor="middle">6h</text>
+          <text x="484" y="192" text-anchor="middle">12h</text>
+        </g>
+        <path d="M56 162.4V107.9H270V53.3H484V47.6H520"
+              fill="none" stroke="var(--water)" stroke-width="3"
+              stroke-linecap="round" stroke-linejoin="round"/>
+        <g font-family="Menlo, SF Mono, ui-monospace, monospace" font-size="16"
+           font-weight="700" fill="var(--ink)">
+          <text x="163" y="98" text-anchor="middle">3 lb</text>
+          <text x="377" y="44" text-anchor="middle">3 lb</text>
+          <text x="520" y="34" text-anchor="end">4.9 oz</text>
+        </g>
+      </svg>
+
+      <p>6&nbsp;lb 4.9&nbsp;oz is more than one safe addition, so it splits and says when to
+         retest.</p>
+    </div>
+  </div>
+
+  <div class="band">
+    <figure class="wrap spa">
+      <div class="phone">
+        <img src="assets/07-hot-tub-bromine.png" width="640" height="1390" loading="lazy"
+             alt="PoolDose hot tub profile: 350 gallon spa on bromine with target ranges for bromine, pH, total alkalinity and calcium hardness.">
+      </div>
+      <figcaption>A 350-gallon hot tub on bromine.</figcaption>
+    </figure>
+  </div>
+
+  <div class="band">
+    <div class="wrap price">
+      <p>Every dose calculation is free. Pro is $5.99 once &mdash; charts, LSI, reminders,
+         full history.</p>
+      <p class="fine">Your App Store price applies.</p>
+      <a class="more" href="support.html#free-vs-pro">Free vs Pro in full &rarr;</a>
+    </div>
+  </div>
+
+  <div class="band">
+    <div class="wrap">
+      <section class="label" aria-labelledby="safety">
+        <h2 id="safety">Read before you add anything</h2>
+        <div class="in">
+          <p class="first">If the product label and PoolDose disagree, follow the label.</p>
+          <ul>
+            <li>Never mix pool chemicals.</li>
+            <li>Add chemicals to water, never water to chemicals.</li>
+            <li>When in doubt: add less, circulate, retest.</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+  </div>
+
+</main>
+
+<div class="band">
+  <div class="wrap">
+    <footer>
+      <a href="support.html">Support and FAQ</a>
+      <a href="mailto:nosunosukawa@gmail.com">nosunosukawa@gmail.com</a>
+      <a href="privacy.html">Privacy policy</a>
+      <a href="support.html#guides">Guides</a>
+      <span>&copy; 2026 Nobutaka Kawasaki</span>
+    </footer>
+  </div>
+</div>
+
 </body>
 </html>

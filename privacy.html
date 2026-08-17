@@ -5,57 +5,77 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PoolDose — Privacy Policy</title>
 <meta name="description" content="PoolDose collects nothing. No account, no analytics, no advertising, no server.">
+<meta name="theme-color" content="#DCE2E1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D1D1C" media="(prefers-color-scheme: dark)">
 <style>
-  /* index.html と同じトークン・同じ意匠(アプリ本体の theme/colors.ts 由来)。
-     本文リンクは --accent だとコントラストが 4.5:1 に届かないので --link を別に置く。 */
+  /* index / support と同じトークン・同じ書体。法的本文は1文字も変えていない。 */
   :root{
-    --bg:#E7EFF2; --panel:#FFFFFF; --ink:#06272F; --ink-soft:#4E6B74;
-    --link:#0A6A82; --line:#C6D9DF; --rule:#06272F; --focus:#0E7C97;
+    color-scheme: light dark;
+    --deck:#DCE2E1; --sheet:#F6F8F7;
+    --ink:#14201E;  --ink-2:#4A5957;
+    --water:#0A5F70; --hair:#B4BFBD;
+    --f-display:"American Typewriter","AmericanTypewriter-Bold",Rockwell,"Roboto Slab",Georgia,serif;
+    --f-body:Optima,"Optima nova",Candara,"Gill Sans","Gill Sans MT","Trebuchet MS",system-ui,sans-serif;
+    --f-data:Menlo,"SF Mono",SFMono-Regular,ui-monospace,Consolas,"DejaVu Sans Mono",monospace;
   }
   @media (prefers-color-scheme: dark){
     :root{
-      --bg:#06202A; --panel:#0E2E3A; --ink:#E4F0F3; --ink-soft:#9BB4BC;
-      --link:#5CC4DE; --line:#224856; --rule:#5D8794; --focus:#5CC4DE;
+      --deck:#0D1D1C; --sheet:#142A29;
+      --ink:#E7EEEC;  --ink-2:#9DB0AD;
+      --water:#63C8DA; --hair:#2C4544;
     }
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{-webkit-text-size-adjust:100%}
-  body{background:var(--bg);color:var(--ink);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    line-height:1.55;-webkit-font-smoothing:antialiased;
-    padding:0 16px 56px;overflow-x:hidden;overflow-wrap:break-word}
-  .wrap{max-width:760px;margin:0 auto}
-  a{color:var(--link);font-weight:600}
+  body{background:var(--deck);color:var(--ink);
+    font-family:var(--f-body);font-size:18px;line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;overflow-wrap:break-word;touch-action:manipulation}
+  h1,h2{font-family:var(--f-display);font-weight:700;text-wrap:balance;line-height:1.15}
+  p{text-wrap:pretty}
+  a{color:var(--water);font-weight:600}
   a:hover{text-decoration-thickness:2px}
-  :focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:2px}
+  :focus-visible{outline:3px solid var(--water);outline-offset:2px;border-radius:2px}
+  [id]{scroll-margin-top:16px}
 
-  .utility{border-bottom:2px solid var(--rule);padding:1px 0;
-    display:flex;flex-wrap:wrap;gap:0 18px;align-items:baseline;font-size:14px}
-  .utility strong{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
-    color:var(--ink-soft);font-weight:800;padding:11px 0}
-  .utility a{display:inline-block;padding:11px 0;overflow-wrap:anywhere;max-width:100%}
+  .band{width:100%}
+  .wrap{max-width:760px;margin:0 auto;padding:0 16px}
+  @media (min-width:900px){ .wrap{padding:0 32px} }
+  /* 全幅の帯があるのでノッチ側に文字が回り込まないようにする(横持ち) */
+  .wrap{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+  @media (min-width:900px){ .wrap{padding-left:max(32px,env(safe-area-inset-left));padding-right:max(32px,env(safe-area-inset-right))} }
 
-  header{padding:28px 0 4px}
-  .kicker{font-size:15px;letter-spacing:3px;text-transform:uppercase;font-weight:800}
-  h1{margin-top:14px;font-size:clamp(25px,6vw,34px);line-height:1.12;
-    letter-spacing:-.6px;font-weight:800}
-  .lead{margin-top:14px;font-size:17px;color:var(--ink-soft);max-width:52ch}
-  .date{margin-top:12px;font-size:13px;color:var(--ink-soft);
-    border:2px solid var(--rule);display:inline-block;padding:5px 10px;
-    letter-spacing:1px;text-transform:uppercase;font-weight:700}
+  .skip{position:absolute;left:-9999px;top:0;background:var(--sheet);color:var(--ink);
+    padding:10px 14px;z-index:9;font-weight:700}
+  .skip:focus{left:8px;top:8px}
 
-  .panel{background:var(--panel);border:1px solid var(--line);padding:18px;margin-top:10px}
-  .panel:first-of-type{margin-top:32px}
-  h2{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-soft);
-    font-weight:800;margin-bottom:8px}
-  .panel p{font-size:15px}
-  .panel p + p{margin-top:10px}
+  .utility{border-bottom:2px solid var(--ink);display:flex;flex-wrap:wrap;
+    gap:0 20px;align-items:baseline;font-family:var(--f-data);font-size:13px}
+  .utility b{font-size:11px;letter-spacing:1.6px;text-transform:uppercase;
+    color:var(--ink-2);padding:12px 0}
+  /* 44px のタップ領域(第1波の a11y 修正を維持)。 */
+  .utility a{display:inline-block;padding:12px 0;overflow-wrap:anywhere;max-width:100%}
 
-  footer{margin-top:48px;border-top:2px solid var(--rule);padding-top:3px;
-    color:var(--ink-soft);font-size:14px;display:flex;flex-wrap:wrap;gap:0 16px;
-    align-items:baseline}
-  footer span{padding:11px 0}
-  footer a{display:inline-block;padding:11px 0;overflow-wrap:anywhere;max-width:100%}
+  header{padding:38px 0 8px}
+  .kicker{font-family:var(--f-data);font-size:11px;font-weight:700;
+    letter-spacing:1.6px;text-transform:uppercase;color:var(--ink-2)}
+  h1{font-size:clamp(30px,7vw,46px);letter-spacing:-.5px;margin-top:12px}
+  .lead{margin-top:16px;font-size:21px;line-height:1.45}
+  .date{margin-top:16px;font-family:var(--f-data);font-size:12px;color:var(--ink-2);
+    border:2px solid var(--ink-2);display:inline-block;padding:6px 10px;
+    letter-spacing:1.2px;text-transform:uppercase;font-weight:700}
+
+  section{margin-top:34px}
+  h2{font-size:24px;letter-spacing:-.3px;
+    border-top:2px solid var(--ink);padding-top:14px;margin-bottom:6px}
+  section p{font-size:17px}
+  section p + p{margin-top:12px}
+
+  footer{margin-top:48px;border-top:2px solid var(--ink);color:var(--ink-2);
+    font-family:var(--f-data);font-size:13px;
+    display:flex;flex-wrap:wrap;gap:0 18px;align-items:baseline;padding-bottom:20px}
+  footer span,footer a{display:inline-block;padding:13px 0;
+    overflow-wrap:anywhere;max-width:100%}
 
   @media (prefers-reduced-motion:reduce){
     *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
@@ -64,14 +84,20 @@
 <link rel="canonical" href="https://nosunosukawa.github.io/pooldose-site/privacy.html">
 </head>
 <body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="band">
 <div class="wrap">
 
   <nav class="utility" aria-label="Support">
-    <strong>PoolDose support</strong>
+    <b>PoolDose</b>
+    <a href="index.html">Home</a>
+    <a href="support.html">Support</a>
     <a href="mailto:nosunosukawa@gmail.com">nosunosukawa@gmail.com</a>
-    <a href="index.html">Support &amp; questions</a>
   </nav>
 
+  <main id="main">
   <header>
     <p class="kicker">PoolDose</p>
     <h1>Privacy Policy</h1>
@@ -80,21 +106,21 @@
     <p class="date">Last updated: August 2026</p>
   </header>
 
-  <section class="panel">
+  <section>
     <h2>What we collect</h2>
     <p>Nothing. PoolDose has no analytics, no crash reporting, no advertising identifiers and
        no third-party SDKs that gather data. The developer never receives your pool data, your
        device identifiers or your location.</p>
   </section>
 
-  <section class="panel">
+  <section>
     <h2>Where your data lives</h2>
     <p>Your pools, test results, dose logs and reminders are stored in a database inside the
        app on your device. They are included in your own iPhone or iCloud device backup, which
        only you control. Deleting the app deletes this data.</p>
   </section>
 
-  <section class="panel">
+  <section>
     <h2>Purchases</h2>
     <p>The one-time Pro unlock is processed by Apple through the App Store. PoolDose only asks
        Apple whether this Apple ID owns the unlock. Payment details are handled by Apple and are
@@ -102,19 +128,19 @@
        handles purchases.</p>
   </section>
 
-  <section class="panel">
+  <section>
     <h2>Notifications</h2>
     <p>Reminders are scheduled locally on your device. PoolDose has no push server and no push
        token — nothing about your reminders leaves your iPhone.</p>
   </section>
 
-  <section class="panel">
+  <section>
     <h2>Children</h2>
     <p>PoolDose is a general-audience utility rated 4+. It does not knowingly collect any
        information from anyone, including children.</p>
   </section>
 
-  <section class="panel">
+  <section>
     <h2>Changes &amp; contact</h2>
     <p>If this policy ever changes, the updated text ships with the app and appears on this
        page with a new date.</p>
@@ -122,12 +148,16 @@
        <a href="mailto:nosunosukawa@gmail.com">nosunosukawa@gmail.com</a></p>
   </section>
 
+  </main>
+
   <footer>
-    <span>&copy; 2026 Nobutaka Kawasaki</span>
-    <a href="index.html">Support</a>
+    <a href="index.html">Home</a>
+    <a href="support.html">Support and FAQ</a>
     <a href="mailto:nosunosukawa@gmail.com">nosunosukawa@gmail.com</a>
+    <span>&copy; 2026 Nobutaka Kawasaki</span>
   </footer>
 
+</div>
 </div>
 </body>
 </html>
